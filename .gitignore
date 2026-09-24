@@ -18,6 +18,19 @@ E21_*.pdf
 # --- Outil OpenCode (harnais de dev, pas nos livrables) ---
 .opencode/
 
+# --- Documents de livraison : dépôt GitHub « code seul » ---
+# (les fichiers restent en local ; seuls le code et ses données partent sur GitHub)
+/PREPARATION.md
+/0[0-9]_*.md
+/0[0-9]_*.pdf
+/outils/
+/prototype/README.md
+/prototype/GUIDE_UTILISATION.md
+/prototype/GUIDE_UTILISATION.pdf
+/prototype/FONCTIONNEMENT.md
+/prototype/FONCTIONNEMENT.pdf
+/prototype/runs/
+
 # --- Système ---
 .DS_Store
 Thumbs.db
