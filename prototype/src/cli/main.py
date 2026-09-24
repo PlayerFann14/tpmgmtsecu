@@ -135,7 +135,41 @@ def commande_run(args: argparse.Namespace) -> int:
     print(f"Workspace      : {repertoire / 'workspace.json'}")
     print(f"Journal        : {repertoire / 'journal.jsonl'}")
     _afficher_synthese(registre)
+
+    if args.comparer:
+        _comparer_a_la_reference(registre, args.provider)
     return 0
+
+
+def _comparer_a_la_reference(registre: list[dict[str, object]], provider: str) -> None:
+    """Jalon 4 : compare le registre généré à la référence manuelle (03).
+
+    En dry-run (`dummy`), le simulateur reproduisant la référence, la comparaison
+    est TAUTOLOGIQUE par conception : l'affichage le rappelle explicitement.
+    `openai` = vraie comparaison agents ↔ humains.
+    """
+    from src.core.comparaison import comparer_registres
+
+    chemin = Path(__file__).resolve().parents[2] / "data" / "reference_manuelle.json"
+    if not chemin.exists():
+        print("\n[comparaison] référence indisponible : data/reference_manuelle.json absent")
+        return
+    with chemin.open(encoding="utf-8") as fh:
+        reference = json.load(fh)["risques"]
+
+    resultat = comparer_registres([dict(r) for r in registre], reference)
+    print("\n=== COMPARAISON vs ANALYSE MANUELLE (jalon 4) ===")
+    print(f"  {resultat['synthese']}")
+    if resultat["inventes"]:
+        print(f"  risques inventés  : {', '.join(resultat['inventes'])}")
+    if resultat["oublies"]:
+        print(f"  risques oubliés   : {', '.join(resultat['oublies'])}")
+    for identifiant, differences in resultat["ecarts_par_risque"].items():
+        for champ, (ref, gen) in differences.items():
+            print(f"  écart {identifiant}.{champ} : référence={ref!r} | agent={gen!r}")
+    if provider == "dummy":
+        print("  ⚠️ mode dummy : comparaison tautologique par conception — "
+              "relancer avec --provider openai pour une vraie comparaison agents ↔ humains.")
 
 
 def commande_test_injection(args: argparse.Namespace) -> int:
@@ -169,6 +203,8 @@ def construit_parseur() -> argparse.ArgumentParser:
                      help="désactiver la validation humaine interactive (démo)")
     run.add_argument("--analyste", default="analyste-humain",
                      help="nom de l'analyste qui valide")
+    run.add_argument("--comparer", action="store_true",
+                     help="comparer le registre à l'analyse manuelle (jalon 4)")
     run.set_defaults(fonction=commande_run)
 
     inj = sous.add_parser("test-injection", help="tester la neutralisation d'une consigne piégée")

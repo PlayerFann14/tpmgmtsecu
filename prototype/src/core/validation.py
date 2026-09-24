@@ -45,12 +45,34 @@ def _niveau_est_coherent(niveau: str, probabilite: str, impact: str) -> bool:
         return False
 
 
+_SOURCES_INVALIDES = {"aucune", "neant", "néant", "none", "n/a", "na", "inconnue",
+                      "inconnu", "?", "sans objet", "sans-objet", "x"}
+
+
 def verifier_sources(sortie: Any) -> list[str]:
-    """G4 — toute sortie doit citer au moins une source."""
+    """G4 — toute sortie doit citer au moins une source VALIDE.
+
+    Ne se limite pas à la présence : on rejette aussi les valeurs vides, les
+    chaînes « aucune / néant / n/a », et les longueurs hors bornes (une référence
+    réelle a un format identifiable). La validité sémantique (vraie page, vrai
+    contrôle) reste vérifiée à la relecture humaine.
+    """
     sources = sortie.get("sources", []) if isinstance(sortie, dict) else []
     if not isinstance(sources, list) or len(sources) == 0:
         return ["sources vide : sortie rejetée (parade anti-hallucination, G4)"]
-    return []
+    problemes: list[str] = []
+    for source in sources:
+        if not isinstance(source, str) or not source.strip():
+            problemes.append("source vide (liste non vide mais entrée illisible)")
+            continue
+        source = source.strip()
+        if source.lower() in _SOURCES_INVALIDES:
+            problemes.append(f"source invalide (refusée) : {source!r}")
+        elif len(source) > 120:
+            problemes.append(f"source trop longue (>120 caractères) : {source[:40]!r}…")
+        elif len(source) < 3:
+            problemes.append(f"source trop courte pour être une référence : {source!r}")
+    return problemes
 
 
 def verifier_valide_par(sortie: Any) -> list[str]:

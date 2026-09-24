@@ -1,12 +1,18 @@
 """Fournisseur simulé (dry-run) : sorties déterministes pour la démo et les tests.
 
-Ce provider reproduit fidèlement les sorties de la référence manuelle
-(`03_Analyse_Manuelle_Reference.md`) de façon à pouvoir :
-- exécuter toute la chaîne SANS clé API ni réseau ;
-- faire des tests déterministes ;
-- démontrer le pipeline parfait (10/10 réconcilié avec l'analyse manuelle).
-En mode réel, `OpenAICompatProvider` remplace ce simulateur sans changer le reste
-(G9 : architecture modulaire, modèle remplaçable).
+⚠️ HONNÊTETÉ : ce simulateur REPRODUIT l'analyse de référence
+(`03_Analyse_Manuelle_Reference.md`) pour pouvoir :
+- exécuter toute la chaîne SANS clé API ni réseau (démo, tests) ;
+- vérifier que le PIPELINE (validations, schémas, garde-fous) fonctionne.
+
+Il ne PRÉTEND PAS produire une analyse : un « 10/10 réconcilié » en dry-run ne
+prouve que la cohérence de la chaîne. La vraie comparaison agents ↔ analyse
+manuelle ne prend un sens qu'avec un fournisseur RÉEL (`OpenAICompatProvider`,
+mode `openai`) — cf. `04_Tests_Comparaison_Agents.md` et la checklist (p. 27).
+
+Mode `fidele=False` : produit volontairement un registre VALIDE mais DIVERGENT
+(risque oublié, risque inventé, écart de niveau) pour prouver — test à l'appui —
+que `comparer_registres` sait détecter les écarts (comparaison non tautologique).
 """
 
 from __future__ import annotations
@@ -252,12 +258,16 @@ _RISQUES: list[dict[str, object]] = [
 
 
 class FournisseurSimule:
-    """Fournisseur déterministe : sert les sorties de l'analyse de référence."""
+    """Fournisseur déterministe : reproduit la référence (test de chaîne).
 
-    nom_produit = "dummy-deterministic (référence manuelle)"
+    `fidele=False` : sortie volontairement divergente (voir docstring).
+    """
 
-    def __init__(self, *, troubler: bool = False) -> None:
+    nom_produit = "dummy-deterministic (test de chaîne — n'est PAS une analyse)"
+
+    def __init__(self, *, troubler: bool = False, fidele: bool = True) -> None:
         self.troubler = troubler
+        self.fidele = fidele
 
     def complete(self, systeme: str, utilisateur: str) -> str:
         """Retourne une sortie de référence selon l'agent attendu dans le prompt."""
@@ -270,10 +280,42 @@ class FournisseurSimule:
             return self._enveloppe("AG3", {"menaces": copy.deepcopy(_MENACES)},
                                    sources=["STRIDE", "LINDDUN", "01_Cadrage (frontières)"])
         if "AGENT_4_EVALUATION" in utilisateur:
-            return self._enveloppe("AG4", {"evaluations": copy.deepcopy(_EVALUATIONS)},
+            evaluations = copy.deepcopy(_EVALUATIONS)
+            if not self.fidele:
+                # Écart volontaire mais VALIDE (matrice) : M-09 évalué (élevée, faible) → moyen.
+                for ev in evaluations:
+                    if ev["id_menace"] == "M-09":
+                        ev["probabilite"] = "élevée"
+                        ev["impact"] = "faible"
+                        ev["niveau"] = "moyen"
+            return self._enveloppe("AG4", {"evaluations": evaluations},
                                    sources=["matrice P×I (sujet p. 8)", "01_Cadrage (contexte)"])
         if "AGENT_5_TRAITEMENT" in utilisateur:
             risques = [dict(r) for r in _RISQUES]
+            if not self.fidele:
+                # Registre valide mais divergent : R-07 oublié, R-11 inventé,
+                # R-09 avec un écart de niveau, R-08 avec un autre traitement,
+                # R-04 avec un texte de menace modifié.
+                risques = [r for r in risques if r["id"] != "R-07"]
+                for r in risques:
+                    if r["id"] == "R-09":
+                        r["probabilite"] = "élevée"
+                        r["impact"] = "faible"
+                        r["niveau"] = "moyen"
+                        r["mesures"] = ["Sensibilisation annuelle"]
+                    if r["id"] == "R-08":
+                        r["traitement"] = "réduire"
+                    if r["id"] == "R-04":
+                        r["menace"] = "Perte des sauvegardes lors d'une panne datacenter."
+                risques.append({
+                    "id": "R-11", "actif": "Portail patient", "menace_id": "M-05",
+                    "menace": "Risque inventé : dégradation du portail patient pendant les pics.",
+                    "categorie": "STRIDE-D", "probabilite": "faible", "impact": "élevé",
+                    "niveau": "moyen", "traitement": "accepter",
+                    "mesures": ["Aucune"], "justification": "Risque fictif du mode imparfait.",
+                    "sources": ["matrice P×I"], "risque_residuel": "faible",
+                    "proprietaire": "DSI", "valide_par": None,
+                })
             if self.troubler:
                 # Mode dégradé pour les tests de garde-fous.
                 risques[0]["valide_par"] = "agent"

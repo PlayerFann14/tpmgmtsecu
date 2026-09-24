@@ -14,6 +14,7 @@ Responsabilités (cf. `02`, §5.6) :
 from __future__ import annotations
 
 import json
+import re
 from copy import deepcopy
 from typing import Any
 
@@ -38,6 +39,30 @@ class EtapeImpossibleError(Exception):
 def _tronquer(erreurs: list[str], *, max_car: int = 160) -> list[str]:
     """Limite la longueur des erreurs journalisées (pas de fuite de contenu LLM)."""
     return [e if len(e) <= max_car else e[:max_car] + "…" for e in erreurs]
+
+
+# Outils effectivement invoqués PAR L'ORCHESTRATEUR au profit de chaque agent
+# (les agents n'appellent pas d'outil eux-mêmes : le contrôleur délègue, cf. 02 §5.6).
+_OUTILS_PAR_AGENT: dict[str, list[str]] = {
+    "AG1": ["lire_fichier"],
+    "AG2": ["chercher_connaissance"],
+    "AG3": ["chercher_connaissance", "rechercher_cve"],
+    "AG4": ["calculer_niveau"],
+    "AG5": ["calculer_niveau", "chercher_connaissance"],
+}
+
+# Mots-clés technologiques recherchés dans le document pour la recherche CVE.
+_TECHNOLOGIES_CANDIDATES: list[str] = [
+    "webrtc", "tls", "api", "gateway", "jwt", "oauth", "mqtt", "sms", "vpn",
+    "sso", "mfa", "websocket", "sip", "sql", "exchange", "log4j", "webp",
+    "outlook", "visio", "agenda", "paiement", "dns", "ldap",
+]
+
+
+def extraire_technologies(texte: str) -> list[str]:
+    """Extrait les mots-clés technologiques présents dans le document étudié."""
+    base = (texte or "").lower()
+    return [t for t in _TECHNOLOGIES_CANDIDATES if re.search(rf"\b{re.escape(t)}\b", base)]
 
 
 class Orchestrateur:
@@ -87,9 +112,14 @@ class Orchestrateur:
                 uniques.append(e)
         return uniques[:6]
 
-    def _preparer_cve_ag3(self) -> list[dict[str, object]]:
+    def _preparer_cve_ag3(self, document: str = "") -> list[dict[str, object]]:
+        """Recherche CVE avec des mots-clés EXTRAITS du document étudié (pas de
+        liste codée en dur) ; repli documenté si le document n'en contient aucun.
+        """
+        trouves = extraire_technologies(document)
+        mots = " ".join(trouves[:4]) or "webrtc tls api"  # repli si aucun mot-clé
         try:
-            resultat = rechercher_cve(mots="webrtc tls api")  # technologies du cas B
+            resultat = rechercher_cve(mots=mots)
         except Exception:
             return []
         return resultat.get("cves", [])
@@ -119,7 +149,7 @@ class Orchestrateur:
             agent = self.agents[nom]
             contexte["rag"] = self._preparer_rag(nom)
             if nom == "AG3":
-                contexte["cve"] = self._preparer_cve_ag3()
+                contexte["cve"] = self._preparer_cve_ag3(description_systeme)
             agent.definir_contexte(contexte)
 
             produit = self._executer_avec_reprises(nom, agent, contexte)
@@ -157,7 +187,10 @@ class Orchestrateur:
             except Exception as exc:
                 dernier_erreurs = _tronquer([f"échec appel LLM : {exc}"])
                 self.journal.appels_agents(nom_agent=nom, tentative=tentative,
-                                           statut="echec_llm", erreurs=dernier_erreurs)
+                                           statut="echec_llm",
+                                           outils=_OUTILS_PAR_AGENT.get(nom, []),
+                                           n_entree=len(agent._dernier_prompt),
+                                           erreurs=dernier_erreurs)
                 agent.definir_contexte({**contexte, "erreurs_reparation": dernier_erreurs})
                 continue
 
@@ -166,7 +199,10 @@ class Orchestrateur:
             except json.JSONDecodeError as exc:
                 dernier_erreurs = _tronquer([f"JSON invalide : {exc}"])
                 self.journal.appels_agents(nom_agent=nom, tentative=tentative,
-                                           statut="echec_json", n_sortie=len(brut),
+                                           statut="echec_json",
+                                           outils=_OUTILS_PAR_AGENT.get(nom, []),
+                                           n_entree=len(agent._dernier_prompt),
+                                           n_sortie=len(brut),
                                            erreurs=dernier_erreurs)
                 # Réparation : signaler la cause au prochain essai.
                 agent.definir_contexte({**contexte, "erreurs_reparation": dernier_erreurs})
@@ -185,12 +221,18 @@ class Orchestrateur:
             agent._erreurs = _tronquer(erreurs)
             if not erreurs:
                 self.journal.appels_agents(nom_agent=nom, tentative=tentative,
-                                           statut="ok", n_sortie=len(brut))
+                                           statut="ok",
+                                           outils=_OUTILS_PAR_AGENT.get(nom, []),
+                                           n_entree=len(agent._dernier_prompt),
+                                           n_sortie=len(brut))
                 return sortie
 
             dernier_erreurs = agent._erreurs
             self.journal.appels_agents(nom_agent=nom, tentative=tentative,
-                                       statut="echec_schema", n_sortie=len(brut),
+                                       statut="echec_schema",
+                                       outils=_OUTILS_PAR_AGENT.get(nom, []),
+                                       n_entree=len(agent._dernier_prompt),
+                                       n_sortie=len(brut),
                                        erreurs=dernier_erreurs)
             # Réparation : réinjecter les erreurs dans le contexte du prochain essai.
             agent.definir_contexte({**contexte, "erreurs_reparation": dernier_erreurs})
@@ -229,8 +271,11 @@ class Orchestrateur:
         """Étape d'humain dans la boucle : écrit `valide_par` (garde-fou G6).
 
         Appelée par le CLI, jamais par un agent. Pour chaque risque, l'analyste
-        accepte (a), diffère (d, reste null) ou corrige (c, édite le champ).
-        NB : travaille sur une copie, le produit de l'Agent 5 reste intact.
+        accepte (a), diffère (d, reste null) ou corrige (c) : la correction porte
+        sur le texte, l'actif, la probabilité, l'impact (le niveau est alors
+        RECALCULÉ par la matrice), le traitement ou les sources — chaque champ
+        modifié est journalisé. NB : travaille sur une copie, le produit de
+        l'Agent 5 reste intact.
         """
         registre = deepcopy(registre)
         for r in registre:
@@ -245,14 +290,45 @@ class Orchestrateur:
                 self.journal.validation_humaine(r["id"], analyste, "accepte")
             elif decision == "c":
                 r["valide_par"] = analyste
-                correction = input("  correction ? ")
-                if correction:
-                    r["menace"] = correction
+                champs = self._corriger_risque(r)
                 self.journal.validation_humaine(r["id"], analyste, "corrige")
+                if champs:
+                    self.journal.ecrire({"type": "correction_humaine", "risque": r["id"],
+                                         "valide_par": analyste, "champs": champs})
             else:
                 r["valide_par"] = None
                 self.journal.validation_humaine(r["id"], analyste, "differe")
         return registre
+
+    def _corriger_risque(self, r: dict[str, Any]) -> list[str]:
+        """Correction interactive d'un risque (entrée = conserver la valeur)."""
+        from ..core.validation import calculer_niveau
+
+        champs_modifies: list[str] = []
+        editables = (
+            ("menace", "menace"),
+            ("actif", "actif"),
+            ("probabilite", "probabilité (faible|moyenne|élevée)"),
+            ("impact", "impact (faible|moyen|élevé)"),
+            ("traitement", "traitement (réduire|transférer|éviter|accepter)"),
+            ("source", "source (ajouter une référence)"),
+        )
+        for champ, etiquette in editables:
+            actuel = str(r.get(champ, ""))
+            valeur = input(f"  {etiquette} [actuel : {actuel}] — Entrée = garder : ").strip()
+            if not valeur:
+                continue
+            if champ == "source":
+                r.setdefault("sources", []).append(valeur)
+            elif champ in ("probabilite", "impact"):
+                r[champ] = valeur
+                # Le niveau reste un choix DÉTERMINISTE (matrice) : l'humain
+                # corrige la probabilité/l'impact, jamais le niveau directement.
+                r["niveau"] = calculer_niveau(r["probabilite"], r["impact"])
+            else:
+                r[champ] = valeur
+            champs_modifies.append(champ)
+        return champs_modifies
 
 
 def construire_registre_outils() -> RegistreOutils:
