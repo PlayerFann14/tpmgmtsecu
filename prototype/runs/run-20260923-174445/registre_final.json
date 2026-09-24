@@ -1,0 +1,247 @@
+[
+  {
+    "id": "R-01",
+    "actif": "Comptes et identités (médecins)",
+    "menace_id": "M-01",
+    "menace": "Vol d'identifiants d'un médecin par harponnage puis connexion à la console d'administration.",
+    "categorie": "STRIDE-S",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "MFA FIDO2 résistant au phishing (technique/préventif)",
+      "Sensibilisation + simulations de phishing (administratif/préventif)",
+      "Alerte sur connexion inhabituelle (technique/détectif)"
+    ],
+    "justification": "Ancré dans le cas : un compte médecin donne accès aux dossiers et aux ordonnances.",
+    "sources": [
+      "STRIDE-S",
+      "ANSSI (MFA)",
+      "OWASP ASVS V2"
+    ],
+    "risque_residuel": "moyen",
+    "proprietaire": "RSSI",
+    "valide_par": "analyste-humain"
+  },
+  {
+    "id": "R-02",
+    "actif": "Base de dossiers patients",
+    "menace_id": "M-02",
+    "menace": "Consultation non autorisée d'un dossier patient par un compte interne compromis ou trop privilégié.",
+    "categorie": "STRIDE-E",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Moindre privilège + revue trimestrielle des droits (administratif/préventif)",
+      "Contrôle d'accès par besoin d'en connaître (technique/préventif)",
+      "Journal d'accès aux dossiers (technique/détectif)"
+    ],
+    "justification": "Le cas prévoit des accès nominatifs au dossier ; l'écart permis/réel est ici la menace.",
+    "sources": [
+      "STRIDE-E",
+      "ISO/IEC 27002 A.5.15",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen",
+    "proprietaire": "Direction médicale",
+    "valide_par": "analyste-humain"
+  },
+  {
+    "id": "R-03",
+    "actif": "Base de dossiers patients",
+    "menace_id": "M-03",
+    "menace": "Exfiltration massive des dossiers via une API d'accès exposée sur Internet (contrôle d'autorisation défaillant).",
+    "categorie": "STRIDE-I",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Contrôle d'autorisation systématique côté serveur (technique/préventif)",
+      "Tests d'intrusion avant mise en production (administratif/préventif)",
+      "Détection d'exfiltration volumineuse (technique/détectif)"
+    ],
+    "justification": "L'API Gateway est en frontière de confiance 2, exposée sur Internet.",
+    "sources": [
+      "STRIDE-I",
+      "OWASP API Top 10 (BOLA)",
+      "ISO/IEC 27002 A.8.24"
+    ],
+    "risque_residuel": "moyen",
+    "proprietaire": "RSSI",
+    "valide_par": "analyste-humain"
+  },
+  {
+    "id": "R-04",
+    "actif": "Sauvegardes chiffrées",
+    "menace_id": "M-04",
+    "menace": "Rançongiciel chiffre la production et efface les sauvegardes : perte irrémédiable.",
+    "categorie": "STRIDE-D",
+    "probabilite": "faible",
+    "impact": "élevé",
+    "niveau": "moyen",
+    "traitement": "réduire",
+    "mesures": [
+      "Sauvegardes hors ligne immuables, règle 3-2-1 (technique/préventif)",
+      "Test de restauration mensuel (administratif/détectif)",
+      "Segmentation réseau + EDR (technique/préventif)"
+    ],
+    "justification": "Le cas place les sauvegardes chiffrées comme unique recours ; leur isolation est critique.",
+    "sources": [
+      "STRIDE-D",
+      "ANSSI (sauvegardes)",
+      "ISO/IEC 27002 A.8.13"
+    ],
+    "risque_residuel": "faible",
+    "proprietaire": "DSI",
+    "valide_par": "analyste-humain"
+  },
+  {
+    "id": "R-05",
+    "actif": "Comptes rendus et ordonnances",
+    "menace_id": "M-05",
+    "menace": "Altération d'un compte rendu ou d'une ordonnance en transit ou au stockage.",
+    "categorie": "STRIDE-T",
+    "probabilite": "faible",
+    "impact": "élevé",
+    "niveau": "moyen",
+    "traitement": "réduire",
+    "mesures": [
+      "TLS 1.3 obligatoire (technique/préventif)",
+      "Hachage + signature des documents (technique/préventif)",
+      "Contrôle des versions (technique/détectif)"
+    ],
+    "justification": "L'intégrité des documents médicaux conditionne l'acte de soin.",
+    "sources": [
+      "STRIDE-T",
+      "ISO/IEC 27002 A.8.24",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "faible",
+    "proprietaire": "Direction médicale",
+    "valide_par": "analyste-humain"
+  },
+  {
+    "id": "R-06",
+    "actif": "Service de visioconférence",
+    "menace_id": "M-06",
+    "menace": "Indisponibilité prolongée du service de visio ou de l'agenda (panne, DDoS).",
+    "categorie": "STRIDE-D",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "transférer",
+    "mesures": [
+      "Redondance multi-zone + bascule (technique/préventif)",
+      "Protection anti-DDoS (technique/préventif)",
+      "SLA contractuel avec le prestataire + cyber-assurance (administratif/compensatoire)"
+    ],
+    "justification": "Dépendance au prestataire visio (frontière 5) : le risque est partiellement transférable.",
+    "sources": [
+      "STRIDE-D",
+      "ISO/IEC 27002 A.8.14",
+      "cours ch. 09 (RTO/RPO)"
+    ],
+    "risque_residuel": "moyen",
+    "proprietaire": "Direction produit",
+    "valide_par": "analyste-humain"
+  },
+  {
+    "id": "R-07",
+    "actif": "Journaux horodatés",
+    "menace_id": "M-07",
+    "menace": "Absence ou non-horodatage des journaux : une consultation ne peut être prouvée ni niée (répudiation).",
+    "categorie": "STRIDE-R",
+    "probabilite": "moyenne",
+    "impact": "moyen",
+    "niveau": "moyen",
+    "traitement": "réduire",
+    "mesures": [
+      "Journaux centralisés + NTP + conservation 12 mois (technique/préventif)",
+      "Revue mensuelle des accès administrateurs (administratif/détectif)"
+    ],
+    "justification": "La traçabilité est exigée par le contexte (secret médical, audits).",
+    "sources": [
+      "STRIDE-R",
+      "ISO/IEC 27002 A.8.15/A.8.16"
+    ],
+    "risque_residuel": "faible",
+    "proprietaire": "RSSI",
+    "valide_par": "analyste-humain"
+  },
+  {
+    "id": "R-08",
+    "actif": "Prestataires externes",
+    "menace_id": "M-08",
+    "menace": "Compromission d'un prestataire externe (visio, SMS, hébergeur) ouvrant une porte d'entrée dans la plateforme.",
+    "categorie": "STRIDE-T",
+    "probabilite": "faible",
+    "impact": "élevé",
+    "niveau": "moyen",
+    "traitement": "transférer",
+    "mesures": [
+      "Évaluation précontractuelle + clause de notification (administratif/préventif)",
+      "Exigence SBOM (administratif/préventif)",
+      "Revue trimestrielle des accès tiers (technique/préventif)"
+    ],
+    "justification": "Le cas déclare des flux sortants vers des tiers (frontière 5) : SCRM.",
+    "sources": [
+      "STRIDE-T",
+      "cours ch. 07 (SCRM, SolarWinds/3CX/XZ)",
+      "ISO/IEC 27002 A.5.19"
+    ],
+    "risque_residuel": "moyen",
+    "proprietaire": "Achats / DSI",
+    "valide_par": "analyste-humain"
+  },
+  {
+    "id": "R-09",
+    "actif": "Personnes (secrétariat)",
+    "menace_id": "M-09",
+    "menace": "Ingénierie sociale sur le secrétariat pour obtenir un accès ou faire valider un changement.",
+    "categorie": "STRIDE-S",
+    "probabilite": "élevée",
+    "impact": "moyen",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Sensibilisation trimestrielle + simulations (administratif/préventif)",
+      "Procédure de vérification en second canal (administratif/directif)"
+    ],
+    "justification": "Vecteur le plus exploité ; le secrétariat manipule l'agenda et la facturation.",
+    "sources": [
+      "STRIDE-S",
+      "cours ch. 08 (ingénierie sociale)"
+    ],
+    "risque_residuel": "moyen",
+    "proprietaire": "Direction",
+    "valide_par": "analyste-humain"
+  },
+  {
+    "id": "R-10",
+    "actif": "Base de dossiers patients",
+    "menace_id": "M-10",
+    "menace": "Données de santé en clair dans les journaux d'application ou d'analyse : divulgation et non-conformité.",
+    "categorie": "LINDDUN-DD",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Masquage et chiffrement des journaux (technique/préventif)",
+      "Minimisation + purge à 90 jours (administratif/préventif)",
+      "Revue de conformité AIPD (administratif/détectif)"
+    ],
+    "justification": "Menace vie privée typique du cas : données de santé dans les journaux.",
+    "sources": [
+      "LINDDUN-DD",
+      "RGPD art. 5, 9, 25"
+    ],
+    "risque_residuel": "moyen",
+    "proprietaire": "DPO",
+    "valide_par": "analyste-humain"
+  }
+]

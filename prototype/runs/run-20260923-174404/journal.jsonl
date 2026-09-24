@@ -1,0 +1,6 @@
+{"ts": "2026-09-23T17:44:04+00:00", "type": "session_debut", "chemin": "/root/tpmgmtsecu/prototype/runs/run-20260923-174404/journal.jsonl"}
+{"ts": "2026-09-23T17:44:04+00:00", "type": "appel_agent", "agent": "AG1", "tentative": 1, "statut": "ok", "outils": [], "octets_entree": 0, "octets_sortie": 3833, "erreurs": []}
+{"ts": "2026-09-23T17:44:04+00:00", "type": "appel_agent", "agent": "AG2", "tentative": 1, "statut": "ok", "outils": [], "octets_entree": 0, "octets_sortie": 865, "erreurs": []}
+{"ts": "2026-09-23T17:44:04+00:00", "type": "appel_agent", "agent": "AG3", "tentative": 1, "statut": "ok", "outils": [], "octets_entree": 0, "octets_sortie": 3598, "erreurs": []}
+{"ts": "2026-09-23T17:44:04+00:00", "type": "appel_agent", "agent": "AG4", "tentative": 1, "statut": "ok", "outils": [], "octets_entree": 0, "octets_sortie": 1961, "erreurs": []}
+{"ts": "2026-09-23T17:44:04+00:00", "type": "appel_agent", "agent": "AG5", "tentative": 1, "statut": "ok", "outils": [], "octets_entree": 0, "octets_sortie": 7429, "erreurs": []}

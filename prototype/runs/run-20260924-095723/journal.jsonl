@@ -1,0 +1,18 @@
+{"ts": "2026-09-24T09:57:23+00:00", "type": "session_debut", "chemin": "/root/tpmgmtsecu/prototype/runs/run-20260924-095723/journal.jsonl"}
+{"ts": "2026-09-24T09:57:23+00:00", "type": "appel_agent", "agent": "AG1", "tentative": 1, "statut": "ok", "outils": ["lire_fichier"], "octets_entree": 5048, "octets_sortie": 3833, "erreurs": []}
+{"ts": "2026-09-24T09:57:23+00:00", "type": "appel_agent", "agent": "AG2", "tentative": 1, "statut": "ok", "outils": ["chercher_connaissance"], "octets_entree": 7033, "octets_sortie": 865, "erreurs": []}
+{"ts": "2026-09-24T09:57:23+00:00", "type": "appel_agent", "agent": "AG3", "tentative": 1, "statut": "ok", "outils": ["chercher_connaissance", "rechercher_cve"], "octets_entree": 11118, "octets_sortie": 3598, "erreurs": []}
+{"ts": "2026-09-24T09:57:23+00:00", "type": "appel_agent", "agent": "AG4", "tentative": 1, "statut": "ok", "outils": ["calculer_niveau"], "octets_entree": 5513, "octets_sortie": 1961, "erreurs": []}
+{"ts": "2026-09-24T09:57:23+00:00", "type": "appel_agent", "agent": "AG5", "tentative": 1, "statut": "ok", "outils": ["calculer_niveau", "chercher_connaissance"], "octets_entree": 11289, "octets_sortie": 7429, "erreurs": []}
+{"ts": "2026-09-24T09:57:23+00:00", "type": "validation_humaine", "risque": "R-01", "valide_par": "Dr Dupont", "decision": "corrige"}
+{"ts": "2026-09-24T09:57:23+00:00", "type": "correction_humaine", "risque": "R-01", "valide_par": "Dr Dupont", "champs": ["impact", "source"]}
+{"ts": "2026-09-24T09:57:23+00:00", "type": "validation_humaine", "risque": "R-02", "valide_par": "Dr Dupont", "decision": "accepte"}
+{"ts": "2026-09-24T09:57:23+00:00", "type": "validation_humaine", "risque": "R-03", "valide_par": "Dr Dupont", "decision": "accepte"}
+{"ts": "2026-09-24T09:57:23+00:00", "type": "validation_humaine", "risque": "R-04", "valide_par": "Dr Dupont", "decision": "accepte"}
+{"ts": "2026-09-24T09:57:23+00:00", "type": "validation_humaine", "risque": "R-05", "valide_par": "Dr Dupont", "decision": "accepte"}
+{"ts": "2026-09-24T09:57:23+00:00", "type": "validation_humaine", "risque": "R-06", "valide_par": "Dr Dupont", "decision": "accepte"}
+{"ts": "2026-09-24T09:57:23+00:00", "type": "validation_humaine", "risque": "R-07", "valide_par": "Dr Dupont", "decision": "accepte"}
+{"ts": "2026-09-24T09:57:23+00:00", "type": "validation_humaine", "risque": "R-08", "valide_par": "Dr Dupont", "decision": "accepte"}
+{"ts": "2026-09-24T09:57:23+00:00", "type": "validation_humaine", "risque": "R-09", "valide_par": "Dr Dupont", "decision": "accepte"}
+{"ts": "2026-09-24T09:57:23+00:00", "type": "validation_humaine", "risque": "R-10", "valide_par": "Dr Dupont", "decision": "differe"}
+{"ts": "2026-09-24T09:57:23+00:00", "type": "session_fin", "statut": "ok", "nb_risques": 10}

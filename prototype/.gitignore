@@ -1,5 +1,5 @@
-# Données générées (non versionnées)
-runs/
+# Données générées (caches) — les traces d'exécution (runs/) sont des LIVRABLES
+# du jalon 4 (preuves) et sont versionnées, contrairement aux caches.
 __pycache__/
 *.pyc
 .env
