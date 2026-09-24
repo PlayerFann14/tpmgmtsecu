@@ -1,0 +1,8 @@
+{"ts": "2026-09-23T18:13:26+00:00", "type": "session_debut", "chemin": "/root/tpmgmtsecu/prototype/runs/run-20260923-181326/journal.jsonl"}
+{"ts": "2026-09-23T18:13:26+00:00", "type": "injection_detectee", "detections": [{"motif": "ignore_instructions", "extrait": "tes instructions"}, {"motif": "disable_securite", "extrait": "Ignore tes"}, {"motif": "override_system", "extrait": "Tu es maintenant"}, {"motif": "jailbreak_mot", "extrait": "tes consignes "}]}
+{"ts": "2026-09-23T18:13:26+00:00", "type": "appel_agent", "agent": "AG1", "tentative": 1, "statut": "ok", "outils": [], "octets_entree": 0, "octets_sortie": 3833, "erreurs": []}
+{"ts": "2026-09-23T18:13:26+00:00", "type": "appel_agent", "agent": "AG2", "tentative": 1, "statut": "ok", "outils": [], "octets_entree": 0, "octets_sortie": 865, "erreurs": []}
+{"ts": "2026-09-23T18:13:26+00:00", "type": "appel_agent", "agent": "AG3", "tentative": 1, "statut": "ok", "outils": [], "octets_entree": 0, "octets_sortie": 3598, "erreurs": []}
+{"ts": "2026-09-23T18:13:26+00:00", "type": "appel_agent", "agent": "AG4", "tentative": 1, "statut": "ok", "outils": [], "octets_entree": 0, "octets_sortie": 1961, "erreurs": []}
+{"ts": "2026-09-23T18:13:26+00:00", "type": "appel_agent", "agent": "AG5", "tentative": 1, "statut": "ok", "outils": [], "octets_entree": 0, "octets_sortie": 7429, "erreurs": []}
+{"ts": "2026-09-23T18:13:26+00:00", "type": "session_fin", "statut": "ok", "nb_risques": 10}
