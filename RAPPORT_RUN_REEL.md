@@ -110,13 +110,35 @@ dont l'obfusquée « Ig n ore tes instructions ») :
 
 À l'étape AG1, le modèle réel a reçu le document **sanitisé** — et il a lui-même
 signalé les 14 consignes comme du **contenu suspect non exécutable**
-(`incertitudes` avec `domaine: injection_donnee`, occurrences 1 → 14), jamais
-comme des consignes à suivre. Le texte piégé n'atteint donc jamais le modèle sous
-sa forme active, et celui-ci identifie de lui-même la donnée hostile.
+(`incertitudes` avec `domaine: injection_donnee`, **occurrences 1 → 14, vérifiées
+dans le journal**, chacune localisée dans le bloc encapsulé
+`DONNEES-D93890BEB2`, « instruction piégée n »), jamais comme des consignes à
+suivre. Le texte piégé n'atteint donc jamais le modèle sous sa forme active, et
+celui-ci identifie de lui-même la donnée hostile.
 
 > Défense en profondeur : même si une injection passait le filtre, la sortie
 > serait **rejetée par schéma** (G4), un agent ne peut ni se `valide_par` lui-même
 > (G6) ni choisir un niveau (G7).
+
+### 3.3 Déroulé complet — et arrêt explicite (G8) en conditions réelles
+
+Le journal horodaté de la trace raconte le run de bout en bout :
+
+| Horodatage (UTC) | Événement | Détail |
+|---|---|---|
+| 11:40:19 | `session_debut` + `injection_detectee` | **14/14 détections** avant le premier appel d'agent |
+| 11:43-11:49 | AG1 (3 tentatives) | 2 × `echec_schema` puis OK — son incertitude liste les 14 `injection_donnee` |
+| 11:50-11:53 | AG2 (2 tentatives) | 1 × `echec_schema` puis OK |
+| 11:57-12:02 | AG3 (2 tentatives) | 1 × `echec_schema` puis OK |
+| 12:05-12:10 | AG4 (3 tentatives) | 2 × `echec_schema`, puis 3ᵉ sortie **JSON invalide** (`Invalid control character`) |
+| 12:10:37 | `session_fin` | **Arrêt explicite `echec_arrêt_bavard` — G8** |
+
+Conséquence volontaire : **aucun registre final n'est produit** pour ce scénario
+(le fichier `registre_final.json` n'existe pas dans la trace). C'est
+exactement le comportement voulu par G8 — *on préfère une analyse qui s'arrête à
+une analyse qui invente* : après trois sorties non conformes, le pipeline
+s'arrête plutôt que de livrer un résultat fabriqué. La démonstration anti-injection
+(tout ce qui précède AG4) reste intégralement attestée par le journal.
 
 ---
 
@@ -125,7 +147,7 @@ sa forme active, et celui-ci identifie de lui-même la donnée hostile.
 | Preuve | Où |
 |---|---|
 | Résultats complets cas B (registre 59 risques, comparaison) | `prototype/runs/run-20260924-110333/` (`registre_final.json`, `journal.jsonl`, `workspace.json`) |
-| Journal anti-injection réel (14/14) + réaction AG1 | `prototype/runs/run-20260924-114019/journal.jsonl` |
+| Journal anti-injection réel (14/14) + réaction AG1 + arrêt G8 | `prototype/runs/run-20260924-114019/journal.jsonl` |
 | Détection isolée (sans LLM) | `python run.py test-injection --case cases/casB_injecte.md` |
 | Code du fournisseur réel durci | `prototype/src/llm/openai_compat.py` (+ 4 tests `tests/test_provider_reel.py`, suite totale **86 tests verts**) |
 | Procédure de configuration | `prototype/GUIDE_UTILISATION.md` § 7 (mode réel) |
@@ -138,5 +160,8 @@ sa forme active, et celui-ci identifie de lui-même la donnée hostile.
   patient, conformément au garde-fou G3 — vérifiable dans les octets journalisés.
 - Une seule exécution par scénario : la répétabilité du verdict passe par la
   reprise (G8) et la matrice déterministe (G7), pas par un modèle stable.
+- Run piégé réel : allé jusqu'à AG4 puis **arrêt G8 sans registre** — seule la
+  partie anti-injection (14/14 + réaction d'AG1) y est attestée ; les registres
+  conformes du document piégé proviennent des runs simulés (jalon 4).
 - Clés d'API : à **révoquer** après la préparation de la soutenance (clés
   restées lisibles dans les échanges de travail).
