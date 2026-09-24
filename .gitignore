@@ -1,0 +1,23 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# --- Secrets & environnement (ne jamais committer) ---
+.env
+*.env
+**/.env*
+
+# --- Sources du cours (documents du professeur, pas nos livrables) ---
+# À ré-inclure si besoin : supprimer ces lignes puis git add -f
+E21_*.pdf
+
+# --- Outil OpenCode (harnais de dev, pas nos livrables) ---
+.opencode/
+
+# --- Système ---
+.DS_Store
+Thumbs.db

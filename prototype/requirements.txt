@@ -1,0 +1,3 @@
+# Dépendances minimales — le prototype tourne avec le strict nécessaire.
+# (Le fournisseur LLM réel utilise uniquement la bibliothèque standard.)
+jsonschema>=4.18

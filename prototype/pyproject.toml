@@ -1,0 +1,9 @@
+[project]
+name = "agents-risques"
+version = "0.1.0"
+description = "Système multi-agents d'analyse de risques — projet E21 (cas B, téléconsultation)"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

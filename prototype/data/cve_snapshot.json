@@ -1,0 +1,42 @@
+[
+  {
+    "id": "CVE-2021-44228",
+    "produit": "Apache Log4j (bibliothèque Java)",
+    "type": "exécution de code à distance (RCE)",
+    "score_cvss": 10.0,
+    "niveau": "Critique",
+    "reference": "NIST NVD — CVSS v3.1"
+  },
+  {
+    "id": "CVE-2023-4863",
+    "produit": "libwebp (décodage WebP, navigateurs)",
+    "type": "débordement de pile → RCE",
+    "score_cvss": 8.8,
+    "niveau": "Élevé",
+    "reference": "NIST NVD — CVSS v3.1"
+  },
+  {
+    "id": "CVE-2023-23397",
+    "produit": "Microsoft Outlook",
+    "type": "obtention de hash NTLM par invitation de réunion piégée",
+    "score_cvss": 9.8,
+    "niveau": "Critique",
+    "reference": "NIST NVD — CVSS v3.1"
+  },
+  {
+    "id": "CVE-2024-3400",
+    "produit": "Palo Alto GlobalProtect (VPN)",
+    "type": "injection de commande → compromission du VPN",
+    "score_cvss": 10.0,
+    "niveau": "Critique",
+    "reference": "NIST NVD — CVSS v3.1"
+  },
+  {
+    "id": "CVE-2022-41082",
+    "produit": "Microsoft Exchange Server",
+    "type": "RCE après accès à un compte (cf. ProxyNotShell)",
+    "score_cvss": 8.8,
+    "niveau": "Élevé",
+    "reference": "NIST NVD — CVSS v3.1"
+  }
+]
