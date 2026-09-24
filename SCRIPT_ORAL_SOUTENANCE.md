@@ -131,7 +131,9 @@ Résultat : 14 consignes piégées, 14 détections, réparties sur 9 familles de
 
 Le sanitizer couvre le français, l'anglais, les paraphrases, et l'obfuscation : espaces entre les lettres, caractères zero-width, homoglyphes cyrilliques ou pleine chasse. Les délimiteurs sont aléatoires et uniques par session, donc un attaquant ne peut pas les deviner pour fermer le bloc de données. On a aussi corrigé des faux positifs, sur des mots comme « désormais » ou « dorénavant ».
 
-Sur la chaîne complète avec ce document piégé, le registre est identique : 10 sur 10, et valide_par reste à null. Et en conditions réelles, le run `--provider openai` du 24 septembre a rejoué ce document : les 14 injections ont été détectées et journalisées avant le premier appel d'agent, et le modèle lui-même les a signalées comme des données suspectes, pas des consignes.
+Sur la chaîne complète avec ce document piégé, le registre est identique : 10 sur 10, et valide_par reste à null. Et en conditions réelles, le run `--provider openai` du 24 septembre a rejoué ce document : les 14 injections ont été détectées et journalisées avant le premier appel d'agent, et AG1 a lui-même listé les 14 consignes dans ses incertitudes comme des « données injectées », pas comme des consignes à suivre.
+
+Détail important, et on l'assume : sur ce run réel, la chaîne s'est arrêtée à l'étape AG4 après trois sorties non conformes — c'est G8 en conditions réelles. Plutôt que de fabriquer un registre, on s'arrête. Le compte rendu complet de ces deux tests réels — le cas B et ce document piégé — avec l'environnement (endpoint, modèle, sécurité du transport) et les traces horodatées, est dans le rapport `RAPPORT_RUN_REEL.md` du dépôt.
 
 Et c'est là qu'est la défense en profondeur : même si une injection passait le filtre, la sortie serait refusée, parce qu'un agent ne peut ni se valider lui-même, ni fixer un niveau.
 
@@ -152,6 +154,8 @@ Mais comme l'a dit [C], ce 10 sur 10 en dry-run est tautologique. La vraie quest
 Pour le prouver, on a un mode simulé volontairement imparfait. Il produit un registre valide sur la forme, mais faux sur le fond : R-07 oublié, un R-11 inventé, et un écart de niveau sur R-09. Le test de comparaison détecte les trois écarts. C'est ça qui démontre que la comparaison a du sens.
 
 Et le mode réel a été exécuté le 24 septembre avec un vrai LLM (modèle `space-bunny-free`, API compatible OpenAI). Résultat brut : 10 risques de la référence retrouvés, 49 propositions supplémentaires, 5 écarts de niveau. La comparaison discrimine donc aussi avec un vrai modèle, et les traces complètes sont dans le dépôt (`runs/run-20260924-110333/`).
+
+Ce qu'il faut retenir de ces chiffres : le modèle retrouve bien nos 10 risques — zéro oublié — mais il sur-propose, 49 risques en plus, et il est plus pessimiste que nous : 8 critiques et 37 élevés contre 0 et 6 dans notre analyse manuelle. C'est précisément ce que la validation humaine arbitre : l'IA propose, l'humain décide. Tout ceci est consigné dans le rapport `RAPPORT_RUN_REEL.md`, qui présente l'environnement du test réel — endpoint OpenAI-compatible, modèle gratuit, clé en variable d'environnement, transport sécurisé — et les deux exécutions avec leurs journaux horodatés. En écoutant la soutenance, ou en rouvrant le dépôt, vous pouvez relire chaque preuve : c'est ce qu'on veut dire par analyse vérifiable.
 
 ### Slide 12 — Ce qui ne marche pas (3 min)
 
@@ -205,7 +209,7 @@ Merci. Nous sommes prêts pour vos questions.
 |---|---|---|
 | Pourquoi LINDDUN plutôt que PASTA ? | A | LINDDUN cible la vie privée, cœur du cas (art. 9) ; PASTA est orienté attaquant/business, redondant avec STRIDE ici. |
 | Si le LLM ne répond pas en JSON ? | B | Validation de schéma, renvoi en correction, 3 tentatives max (G8), puis arrêt code 1. Pas de registre partiel. |
-| Comment prouver qu'aucune donnée sensible n'a transité ? | C | Cas fictif (G3), mode dry-run sans appel externe, journal.jsonl qui trace chaque appel. |
+| Comment prouver qu'aucune donnée sensible n'a transité ? | C | Cas fictif (G3), mode dry-run sans appel externe, journal.jsonl qui trace chaque appel — et le rapport `RAPPORT_RUN_REEL.md` documente l'environnement du test réel (cas 100 % fictif, octets journalisés). |
 | Refaites la matrice sur R-06 | D | Donner P et I de R-06, lire le niveau dans la matrice P×I du sujet p. 8, montrer que l'outil donne le même. |
 
 Garder ouverts pendant les questions : journal.jsonl et registre_final.json.
