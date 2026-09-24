@@ -7,9 +7,10 @@ __pycache__/
 venv/
 
 # --- Secrets & environnement (ne jamais committer) ---
+# NB : `.env.example` (modèle sans secret) est volontairement VERSIONNÉ.
 .env
 *.env
-**/.env*
+**/.env
 
 # --- Sources du cours (documents du professeur, pas nos livrables) ---
 E21_*.pdf
