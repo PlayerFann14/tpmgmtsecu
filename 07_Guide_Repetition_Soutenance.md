@@ -184,11 +184,13 @@ Minuteur visible. Si en retard : couper S13 (le jury en saura assez), jamais la 
 **Q19. Quelles données partez-vous au LLM en mode réel ? Et la clé ?**
 > Réponse : uniquement le **cas fictif** (avertissement G3 dans les prompts et le README).
 > La clé et le modèle ne sont jamais en dur : variables d'environnement
-> `OPENAI_BASE_URL`, `OPENAI_API_KEY`, `OPENAI_MODEL` (fournisseur appelé via urllib
-> standard, `temperature=0.2`).
+> `OPENAI_BASE_URL`, `OPENAI_API_KEY`, `OPENAI_MODEL` (+ `OPENAI_TIMEOUT`).
+> Transport via curl système (TLS vérifié, clé hors ligne de commande : fichier de
+> config `0600` éphémère), repli `urllib` si curl absent, `temperature=0.2`.
+> Modèle utilisé pour le run réel : `space-bunny-free` (API Console OpenCode).
 
 **Q20. Comment mesurez-vous que ça « marche » ?**
-> Réponse : **82 tests pytest** (8 fichiers) couvrant matrice, sanitizer (14/14 sur le cas
+> Réponse : **86 tests pytest** (8 fichiers) couvrant matrice, sanitizer (14/14 sur le cas
 > piégé, zéro faux positif sur le cas réel), schémas, garde-fous, lecture sécurisée de
 > fichiers, workspace, orchestration complète, comparaison non tautologique, reprises,
 > octets d'entrée et correction humaine → tous verts. Plus la grille de comparaison
@@ -202,15 +204,15 @@ Minuteur visible. Si en retard : couper S13 (le jury en saura assez), jamais la 
 
 | # | Question d'audit | Correction apportée | Réponse type au jury |
 |---|---|---|---|
-| 1 | **La comparaison agents vs analyse manuelle n'est-elle pas tautologique ?** (le simulateur reproduit la référence → un 10/10 ne compare rien) | assumé et levé : mode `dummy fidele=False` (registre valide mais divergent) + `comparer_registres` + référence structurée `data/reference_manuelle.json` + option `--comparer` | « En dry-run le 10/10 est un **test de chaîne**, pas une preuve d'analyse — c'est écrit en toutes lettres dans `04` § 2. La preuve que la comparaison *discrimine* : le mode imparfait produit un registre valide où R-07 est oublié et R-11 inventé, et `comparer_registres` le **détecte** (testé). La vraie comparaison agents ↔ humains se joue avec `--provider openai --comparer`. » |
+| 1 | **La comparaison agents vs analyse manuelle n'est-elle pas tautologique ?** (le simulateur reproduit la référence → un 10/10 ne compare rien) | assumé et levé : mode `dummy fidele=False` (registre valide mais divergent) + `comparer_registres` + référence structurée `data/reference_manuelle.json` + option `--comparer` ; **plus : run réel exécuté le 24/09/2026** (`space-bunny-free`, trace `runs/run-20260924-110333/`) | « En dry-run le 10/10 est un **test de chaîne**, pas une preuve d'analyse — écrit en toutes lettres dans `04` § 2. La comparaison *discrimine* : le mode imparfait (R-07 oublié, R-11 inventé) est détecté par `comparer_registres` (testé), et le **run réel** : **10/10 retrouvés · 49 inventés · 5 écarts de niveau** — bien non tautologique. » |
 | 2 | **Le test d'injection est-il probant ?** (13 consignes annoncées, 4 détectées, pas d'obfuscation, délimiteurs devinables) | cas piégé dédié : **14 instructions → 14 détections mesurées** (une par occurrence) ; motifs FR/EN + paraphrase + obfuscation (espaces, zero-width, homoglyphes) ; faux positifs corrigés ; délimiteurs **aléatoires uniques par session** ; balises `<<<...>>>` du document neutralisées | « Le compte annoncé égale le compte mesuré : 14/14, dont une consigne obfusquée “Ig n ore tes instructions” et une tentative de fermer le bloc de données `<<<FIN-DONNEES>>>`. Filtre + séparation donnée/consigne + garde-fous de sortie : 3 couches indépendantes. » (preuve : `run-...095718/journal.jsonl`, `test-injection`) |
 | 3 | **La validation humaine est-elle crédible ?** (une entrée pipée a×10 ≈ 1 s ne prouve rien) | run de validation **mixte** signé `Dr Dupont` : R-01 corrigé (impact + source, niveau recalculé), 8 acceptés, R-10 différé (patient `null`) ; chaque décision et champ modifiés journalisés | « L'ancienne trace a×10 est reléguée à *démonstration mécanique du flux*. Le run `...095723` montre une correction réelle : changement d'impact → niveau recalculé par la matrice, source ajoutée ; le risque différé reste non signé. En soutenance, validation **en direct** par un membre. » |
 | 4 | **De la code mort / des promesses non tenues :** reprises inutiles (doublons), CVE hors sujet, sources non vérifiées, `octets_entree` à 0 | reprises **réinjectent les erreurs** de la tentative dans le prompt (testé) ; CVE extraites **du document** (`extraire_technologies` → `_preparer_cve_ag3` par mots-clés AG3) ; `verifier_sources` contrôle le **format** (rejette aucune/néant/x/trop long) ; `octets_entree` **réels** (5 048 → 11 289) | « Chaque point de l'audit a un test de verrouillage : `test_reprise_reinjecte_les_erreurs`, `test_preparer_cve_repli_decentralise`, `test_verifier_sources_rejette_formats_invalides`, `test_journal_enregistre_les_octets_entree`. » |
-| 5 | **§ 9 « Outils d'IA » non complété** (version/date « à compléter ») | § 9 du dossier réécrit avec versions et dates réelles : modèle visé `gpt-4o-mini`, OpenCode v2.0.15, Python 3.13.5, pytest 9.1.1, jsonschema 4.26.0, md_to_pdf (xhtml2pdf/weasyprint/PyMuPDF), git 2.47.3 | « Tous les outils d'IA mobilisés sont cités avec version et usage (§ 9), comme l'exige le sujet. Le seul outil restant à nommer est le modèle LLM de l'assistant de l'équipe (nom fourni par l'équipe lui-même). » |
+| 5 | **§ 9 « Outils d'IA » non complété** (version/date « à compléter ») | § 9 du dossier réécrit avec versions et dates réelles : **modèle réel exécuté `space-bunny-free`** (24/09/2026), OpenCode v2.0.15, Python 3.13.5, pytest 9.1.1, jsonschema 4.26.0, md_to_pdf (xhtml2pdf/weasyprint/PyMuPDF), git 2.47.3 | « Tous les outils d'IA mobilisés sont cités avec version, usage et date d'exécution réelle (§ 9), comme l'exige le sujet. Le seul outil restant à nommer est le modèle LLM de l'assistant de l'équipe (nom fourni par l'équipe lui-même). » |
 | 6 | **Les artefacts ne sont pas sur GitHub** (docs, runs, outils exclus du dépôt) | remise complète : documents 01→09 (.md + .pdf), `PREPARATION.md`, `outils/`, `runs/`, `knowledge/`, `data/` ré-ajoutés au dépôt par commits ciblés, push `origin/main` | « Tout est livré : le dossier + les 9 annexes, le prototype, les 10 traces d'exécution (dont la validation mixte) et le référentiel. Clonez `github.com/PlayerFann14/tpmgmtsecu` et relancez `pytest -q`. » |
 | 7 | **Erreurs de fond en analyse de risques :** R-04 titré « Exfiltration » mais scénario rançongiciel ; ARO 0,5 contradictoire avec probabilité « faible » ; phrase « aucun résiduel faible » fausse ; CVE-2023-4863 décrite « pile » au lieu de « tas » ; ISO 27002 A.5.18 mal étiqueté | `03` corrigé : titre « Rançongiciel : perte irrémédiable des dossiers », ARO 0,2 → ALE 36 000 €, valeur mesure +18 000 € ; résiduels reformulés (3 faibles + 7 moyens, acceptation direction) ; snapshot CVE → « débordement de tas » ; `knowledge/iso27002.md` → A.5.18 Droits d'accès, A.8.2 Accès privilégié | « Les valeurs quantitatives sont rejouables : 300 000 € × 60 % × 0,2 = 36 000 €/an. Et les contrôles ISO cités correspondent au bon numéro. » |
 | 8 | **Périmètre flou :** cadrage sur 5 actifs, analyse qui en cite d'autres (A-05, A-07, A-09, A-11, A-13) | `01` inventorie les **14 actifs** ; `03` § Étape 1 documente la **correspondance complète** retenus ↔ cités (chaque actif existe dans l'inventaire) | « D'un côté les 5 actifs retenus pour la notation manuelle, de l'autre l'inventaire complet de 14 — la table de correspondance est dans `03` § Étape 1 : aucun actif inventé. Les agents, eux, couvrent les 14 : écart de granularité assumé et noté C1/C8. » |
-| 9 | **Honnêteté d'ensemble du dossier :** « le dry-run = la vérité », 10/10 présenté comme preuve | repositionnement complet de `04`/`05` : dry-run = **preuve de chaîne** (tautologie assumée), preuve de non-tautologie (mode imparfait), preuve d'analyse = mode réel documenté ; toutes les anciennes affirmations reprises | « Nous distinguons ce que le dry-run prouve (la chaîne), ce que le mode imparfait prouve (la comparaison discrimine) et ce que seul le mode réel prouvera (l'analyse) — c'est cela, l'esprit critique exigé par le sujet. » |
+| 9 | **Honnêteté d'ensemble du dossier :** « le dry-run = la vérité », 10/10 présenté comme preuve | repositionnement complet de `04`/`05` : dry-run = **preuve de chaîne** (tautologie assumée), preuve de non-tautologie (mode imparfait), **preuve d'analyse = mode réel exécuté** (24/09/2026) ; toutes les anciennes affirmations reprises | « Nous distinguons ce que le dry-run prouve (la chaîne), ce que le mode imparfait prouve (la comparaison discrimine) et ce que le mode réel **a montré** (10/10 retrouvés, 49 inventés, 5 écarts de niveau — l'agent surdéclare, d'où la revue humaine G6/G7) — c'est cela, l'esprit critique exigé par le sujet. » |
 
 ---
 
@@ -222,10 +224,11 @@ Minuteur visible. Si en retard : couper S13 (le jury en saura assez), jamais la 
 | Frontières de confiance | **6** | `01_...` |
 | Menaces / évaluations / risques | **10 / 10 / 10** | registre + journal |
 | Synthèse du registre | **6 élevés · 4 moyens · 0 critique · 0 faible** | registre |
-| Grille de comparaison | **10/10 retrouvés · 0 inventé · 0 écart de niveau** | `04_...` |
+| Grille de comparaison (dry-run, chaîne) | **10/10 retrouvés · 0 inventé · 0 écart de niveau** (tautologie assumée) | `04_...` |
+| Grille de comparaison (run réel 24/09/2026) | **10/10 retrouvés · 49 inventés · 5 écarts de niveau** | `runs/run-20260924-110333/` |
 | Motifs d'injection (sanitizer) | **11 motifs définis** (dont **9 exercés** par le cas piégé) | `sanitizer.py` |
 | Instructions piégées / détections | **14 / 14** (1 obfusquée, 1 sur délimiteur) | `test-injection`, `run-...095718` |
-| Tests automatisés | **82 pytest** verts (8 fichiers) | `tests/` |
+| Tests automatisés | **86 pytest** verts (8 fichiers) | `tests/` |
 | Tentatives maximales par étape | **3** | `config.py` |
 | Taille max d'un document | **100 000 octets** | `config.py` |
 | CVE dans le snapshot (démo) | **5** | `data/cve_snapshot.json` |
@@ -240,7 +243,7 @@ Minuteur visible. Si en retard : couper S13 (le jury en saura assez), jamais la 
 | ❌ Ne pas dire | ✅ À la place |
 |---|---|
 | « L'IA a fait l'analyse toute seule » | « L'IA a *proposé* ; l'analyse manuelle + la matrice + l'humain décident » |
-| « C'est 100 % sécurisé » | « Nous avons 4 couches de défense + 82 tests, mais aucune garantie absolue » |
+| « C'est 100 % sécurisé » | « Nous avons 4 couches de défense + 86 tests, mais aucune garantie absolue » |
 | « Le dry-run = la vérité » | « Le dry-run = notre référence encodée (tautologie assumée) ; la comparaison qui discrimine = mode imparfait testé ; le réel se rejoue sur la grille C1→C10 » |
 | « On a envoyé nos données au LLM » | « Jamais : cas 100 % fictif, G3 » |
 | « On a tout fait nous-mêmes » | « On cite tous les outils d'IA (dossier § 9), comme l'exige le sujet » |

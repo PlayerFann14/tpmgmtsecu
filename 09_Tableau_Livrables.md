@@ -17,7 +17,7 @@
 | A3 | 〃 | `02_Architecture_MultiAgents.md/.pdf` | Conception : pipeline AG1→AG5, garde-fous G1→G10, schémas JSON. |
 | A4 | 〃 | `03_Analyse_Manuelle_Reference.md/.pdf` | Analyse 100 % manuelle (vérité terrain, 10 risques attendus). |
 | A5 | 〃 | `04_Tests_Comparaison_Agents.md/.pdf` | Jalon 4 : grille C1→C10 remplie, test d'injection, validation humaine. |
-| A6 | **Prototype** | dossier `prototype/` | Code complet à déposer tel quel : `run.py`, `src/` (dont module de comparaison `src/core/comparaison.py`), `tests/` (82 tests, 8 fichiers, dont `test_comparaison.py`), `cases/`, `data/` (dont **`reference_manuelle.json`** — export structuré de 03, cible du `--comparer`), `knowledge/`, `requirements.txt`, `README.md`, `GUIDE_UTILISATION.md`, `FONCTIONNEMENT.md`. |
+| A6 | **Prototype** | dossier `prototype/` | Code complet à déposer tel quel : `run.py`, `src/` (dont module de comparaison `src/core/comparaison.py`), `tests/` (86 tests, 8 fichiers, dont `test_comparaison.py` et `test_provider_reel.py`), `cases/`, `data/` (dont **`reference_manuelle.json`** — export structuré de 03, cible du `--comparer`), `knowledge/`, `requirements.txt`, `README.md`, `GUIDE_UTILISATION.md`, `FONCTIONNEMENT.md`. |
 | A7 | **Traces de référence** | `prototype/runs/run-20260924-095723/` | Run **validation humaine mixte** signé `Dr Dupont` : R-01 corrigé (impact + source, niveau recalculé par la matrice), R-02→R-09 acceptés, R-10 différé (`valide_par` null). Octets mesurés : AG1 5 048 → AG5 11 289. |
 | A8 | 〃 | `prototype/runs/run-20260924-095714/` | Run **cas B dry-run + `--comparer`** (`dummy-deterministic (test de chaîne — n'est PAS une analyse)`, `valide_par` null ; tautologie assumée et affichée). |
 | A9 | 〃 | `prototype/runs/run-20260924-095718/` | Run **document piégé** (14 injections journalisées, registre identique au sain). |
@@ -58,7 +58,7 @@
 - [ ] **Noms des membres** sur les slides S1 et le cadre du dossier
 - [ ] PDF du dossier **régénéré** après toute modification :
       `cd /root/tpmgmtsecu && /tmp/opencode/venv/bin/python outils/md_to_pdf.py 05_Dossier_Ecrit.md`
-- [x] 82 tests verts (8 fichiers) : `cd prototype && PYTHONPATH=src python -m pytest tests/ -q`
+- [x] 86 tests verts (8 fichiers) : `cd prototype && PYTHONPATH=src python -m pytest tests/ -q`
 - [ ] Démo répétée avec `08` + chrono (45 min)
 - [ ] Aucune donnée réelle sensible envoyée à un LLM (cas 100 % fictif — G3)
 

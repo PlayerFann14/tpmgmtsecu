@@ -14,7 +14,7 @@ Cas d'étude **B · Téléconsultation médicale (MediConsult)**
 **Des agents IA pour analyser les risques — cas MediConsult**
 
 - Prototype multi-agents : Orchestrateur + 5 agents (Inventaire, Modèle, Menaces, Évaluation, Traitement)
-- 10 risques identifiés · validation humaine obligatoire · 82 tests (8 fichiers)
+- 10 risques identifiés · validation humaine obligatoire · 86 tests (8 fichiers)
 - 🎤 Notes « Bonjour, nous présentons notre analyse de risques d'un système de téléconsultation par une chaîne d'agents IA, avec un prototype exécutable. » *(1 min)*
 
 ---
@@ -194,7 +194,7 @@ Cas piégé `casB_injecte.md` (« ignore tes instructions », « Tu es maintenan
 
 ## Slide 16 — Conclusion
 - Une analyse de risques **complète et vérifiable** : Orchestrateur → 5 agents → validation humaine → registre
-- **82 tests verts** · **14/14 injections détectées** (9 familles) · comparaison **non tautologique** prouvée (mode imparfait détecté)
+- **86 tests verts** · **14/14 injections détectées** (9 familles) · comparaison **non tautologique** prouvée (mode imparfait détecté) **et run réel exécuté** (space-bunny-free : 10/10 retrouvés · 49 inventés · 5 écarts de niveau)
 - L'IA propose, l'**humain décide**, et la **matrice** (P×I) garantit la cohérence
 - 🎤 Notes « Merci. On répond à vos questions. » *(1 min)*
 

@@ -282,11 +282,17 @@ cp .env.example .env
 #    OPENAI_BASE_URL=https://api.openai.com/v1
 #    OPENAI_API_KEY=sk-…
 #    OPENAI_MODEL=gpt-4o-mini        ← modèle à CITEr dans le dossier
+#    OPENAI_TIMEOUT=600              ← seconds par appel (modèles lents : free tier)
 
 # 3) Charger et lancer
 set -a; source .env; set +a
 python run.py run --case cases/casB_mediconsult.md --provider openai
 ```
+
+> 🧪 **Testé en conditions réelles (sept. 2026)** avec l'API Console OpenCode
+> (compatible OpenAI) : `OPENAI_BASE_URL=https://opencode.ai/inference/openai/v1`,
+> `OPENAI_MODEL=space-bunny-free` (modèle gratuit, sans crédit nécessaire).
+> Toute API compatible OpenAI fonctionne de la même façon (`/chat/completions`).
 
 > ⚠️ **Règle d'or (garde-fou G3 + cours ANSSI IA) :** ce mode **ne doit jamais
 > recevoir de données réelles** (patients, identifiants réels…). Le cas B est
@@ -300,7 +306,15 @@ d'inventer (garde-fou G8).
 
 Côté technique (`src/llm/openai_compat.py`) : `POST {OPENAI_BASE_URL}/chat/completions`
 avec `temperature=0.2` par défaut (créativité faible, reproductibilité meilleure) et
-`timeout` réglable. Le modèle est remplacé via la variable `OPENAI_MODEL`.
+`timeout` réglable (variable `OPENAI_TIMEOUT`, défaut 120 s). Le modèle est remplacé
+via la variable `OPENAI_MODEL`.
+
+Sécurité du transport : l'appel passe par **curl système** (vérification TLS réelle
+avec le bundle de CA de la machine), et la clé API n'apparaît **jamais dans la ligne
+de commande** (donc pas dans `/proc`) : elle est écrite dans un fichier de config curl
+éphémère en mode `0600`, supprimé juste après l'appel, le corps JSON transitant par
+stdin. Si `curl` est absent, repli `urllib` standard (même vérification TLS selon
+le contexte Python du système).
 
 > 💡 Pour une **vraie** comparaison, relancer en mode réel avec `--comparer`
 > (voir § 9.4) : en dry-run, le score est tautologique (le simulateur reproduit la
@@ -310,8 +324,8 @@ avec `temperature=0.2` par défaut (créativité faible, reproductibilité meill
 
 ## 8. Lancer la suite de tests
 
-**82 tests verts, répartis sur 8 fichiers** (vérifiable : `cd prototype && PYTHONPATH=src
-python -m pytest tests/ -q` → `82 passed`) :
+**86 tests verts, répartis sur 8 fichiers** (vérifiable : `cd prototype && PYTHONPATH=src
+python -m pytest tests/ -q` → `86 passed`) :
 
 | Fichier | Nb de tests | Couvre |
 |---|---|---|
@@ -323,6 +337,7 @@ python -m pytest tests/ -q` → `82 passed`) :
 | `tests/test_audit_fixes.py` | 8 | reprises utiles, octets réels, correction humaine, sources, CVE dynamique |
 | `tests/test_file_reader.py` | 3 | lecture sécurisée du fichier |
 | `tests/test_workspace.py` | 1 | mémoire partagée |
+| `tests/test_provider_reel.py` | 4 | fournisseur réel : secret jamais dans argv (config 0600 éphémère), timeout `OPENAI_TIMEOUT` |
 
 ```bash
 cd prototype
@@ -505,7 +520,7 @@ python run.py run --case cases/mon_cas.md --no-human
 
 **Avant de considérer le jalon 3 « Prototyper » comme terminé :**
 - [ ] `python run.py run --case cases/casB_mediconsult.md --no-human` fonctionne
-- [ ] `cd prototype && PYTHONPATH=src python -m pytest tests/ -q` → **82 tests verts**
+- [ ] `cd prototype && PYTHONPATH=src python -m pytest tests/ -q` → **86 tests verts**
 - [ ] `python run.py test-injection --case cases/casB_injecte.md` → **les 14 instructions détectées** (une par occurrence) et neutralisées
 - [ ] une exécution avec validation humaine a été faite (traces dans `runs/`, ex. `run-20260924-095723`)
 

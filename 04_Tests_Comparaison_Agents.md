@@ -15,7 +15,9 @@
 >    registre *valide mais divergent*, et la comparaison le **détecte** (tests) ;
 > 3. **Preuve d'analyse** : la vraie comparaison agents ↔ humains n'a de sens
 >    qu'avec un fournisseur RÉEL (`--provider openai`) — procédure documentée
->    (`prototype/GUIDE_UTILISATION.md` § 7), à exécuter en soutenance.
+>    (`prototype/GUIDE_UTILISATION.md` § 7), **exécutée en conditions réelles le
+>    24/09/2026** (modèle `space-bunny-free`, API OpenAI-compatible Console
+>    OpenCode, trace `runs/run-20260924-110333/` — résultats au § 3.3).
 >
 > La section finale (§ 8) refait la grille C1→C10 avec cette lecture.
 
@@ -28,10 +30,10 @@
 |---|---|
 | Prototype | `prototype/` (Python **3.13.5** ; `jsonschema` 4.26.0, `pytest` 9.1.1) |
 | Fournisseur LLM testé | `dummy-deterministic (test de chaîne — n'est PAS une analyse)` |
-| Mode réel | `--provider openai` (endpoint OpenAI-compatible, `OPENAI_BASE_URL/OPENAI_API_KEY/OPENAI_MODEL`, temperature 0.2) — cf. `GUIDE_UTILISATION.md` § 7 |
+| Mode réel | `--provider openai` (endpoint OpenAI-compatible, `OPENAI_BASE_URL/OPENAI_API_KEY/OPENAI_MODEL`, temperature 0.2, timeout `OPENAI_TIMEOUT`) — cf. `GUIDE_UTILISATION.md` § 7 ; testé avec `https://opencode.ai/inference/openai/v1` + `space-bunny-free` |
 | Cas | `cases/casB_mediconsult.md` (14 actifs, 6 frontières, DFD) |
 | Cas piégé | `cases/casB_injecte.md` (**14 consignes malveillantes insérées**, dont 1 obfusquée) |
-| Version de test | `pytest` : **82 tests**, tous verts |
+| Version de test | `pytest` : **86 tests**, tous verts (8 fichiers) |
 
 ### 1.2 Commandes reproductibles
 ```bash
@@ -39,7 +41,7 @@ cd prototype
 PYTHONPATH=src python run.py run --case cases/casB_mediconsult.md --no-human --comparer   # chaîne + comparaison (jalon 4)
 PYTHONPATH=src python run.py run --case cases/casB_injecte.md  --no-human                 # chaîne sur document piégé
 PYTHONPATH=src python run.py test-injection --case cases/casB_injecte.md                  # détection isolée (14/14)
-PYTHONPATH=src python -m pytest tests/ -q                                                # 82 tests
+PYTHONPATH=src python -m pytest tests/ -q                                                # 86 tests
 ```
 
 ### 1.3 Traces utilisées
@@ -48,6 +50,7 @@ PYTHONPATH=src python -m pytest tests/ -q                                       
 | `runs/run-20260924-095714/` | 2026-09-24 | dry-run cas B **+ comparaison automatique** (`--comparer`) |
 | `runs/run-20260924-095718/` | 2026-09-24 | chaîne complète sur **document piégé** (14/14 détections journalisées) |
 | `runs/run-20260924-095723/` | 2026-09-24 | **validation humaine réelle** : décisions mixtes et correction (`Dr Dupont`) |
+| `runs/run-20260924-110333/` | 2026-09-24 | **run réel** (`space-bunny-free`) cas B + comparaison `--comparer` : 10/10 retrouvés, 49 inventés, 5 écarts de niveau |
 | `runs/run-20260923-181321/` | 2026-09-23 | dry-run cas B (traces du jalon 3, conservées) |
 | `runs/run-20260923-175812/` | 2026-09-23 | **démonstration mécanique** d'acceptation a×10 (à ne pas lire comme une délibération humaine — voir § 6) |
 
@@ -110,11 +113,48 @@ Même « imperfect », le mode `fidele=False` ne peut pas :
 - sortir un niveau hors matrice (AG4 écrase `niveau` de façon déterministe, G7) ;
 - omettre les `sources` (G4, format contrôlé — `test_verifier_sources`).
 
-### 3.3 Et en mode réel ?
+### 3.3 Et en mode réel ? (exécuté le 24/09/2026)
+
 Avec `--provider openai`, le registre généré est comparé à la **référence manuelle
 structurée** `prototype/data/reference_manuelle.json` (export de `03_...`, daté et
 documenté) via la même fonction `comparer_registres` — la grille C1→C10 s'applique
-alors sans réserve. C'est l'exécution à montrer en soutenance.
+alors sans réserve. **C'est désormais fait** : run réel exécuté le 24/09/2026 avec
+le modèle **`space-bunny-free`** (API OpenAI-compatible Console OpenCode,
+`OPENAI_BASE_URL=https://opencode.ai/inference/openai/v1`, clé de l'équipe,
+`OPENAI_TIMEOUT=600`), trace `runs/run-20260924-110333/`.
+
+**Résultats bruts de la comparaison réelle (commande reproductible § 1.2) :**
+
+```
+=== COMPARAISON vs ANALYSE MANUELLE (jalon 4) ===
+  10/10 risques retrouvés · 49 inventés · 0 oubliés · 5 écart(s) de niveau
+```
+
+Lecture honnête (ce que l'audit doit retenir) :
+
+1. **Le run réel sort un registre valide de bout en bout** : les schémas G4, la
+   reprise G8 et la validation humaine G6 fonctionnent sur un vrai LLM, avec
+   **reprises effectives** (AG1 ×2, AG4 ×2, AG5 ×3 — le modèle réel propose des
+   `sources > 120 caractères` et des `resume` trop longs : la reprise
+   *corrige puis poursuit*, preuve de robustesse).
+2. **La comparaison n'est PAS tautologique en réel** : 49 risques « inventés »
+   (sur-génération du modèle libre : 59 propositions vs 10 dans la référence) et
+   5 écarts de niveau → l'outil **discrimine** réellement le modèle de la
+   référence humaine.
+3. **Le modèle réel est plus pessimiste que l'équipe** : 8 critiques + 37 élevés
+   (référence humaine : 0 critique, 6 élevés, 4 moyens) — un signal
+   méthodologique classique (« l'agent surdéclare »), que la **revue humaine
+   (G6/G7)** est précisément là pour arbitrer.
+4. **Divergence de forme assumée** : le champ `actif` est rempli par l'ID
+   (`A-01`) plutôt que le libellé (« Comptes et identités (médecins) ») — écart
+   de *style de schéma*, pas de fond : l'ID pointe le même actif (contrôlable
+   dans `registre_final.json`).
+5. **Aucun risque de la référence n'est oublié** (0) : la couverture de
+   l'analyse manuelle est préservée en mode réel.
+
+> Reproduire en soutenance : `.env` avec la clé du groupe, puis `python run.py run
+> --case cases/casB_mediconsult.md --provider openai --comparer` (attendre la fin
+> de la chaîne, ~10-20 min sur un modèle gratuit).
 
 ---
 
@@ -137,7 +177,9 @@ La grille a été posée *à l'avance* dans `03_...` § Étape 6. Verdicts appli
 | **C10** | **Injections** : consigne piégée ? | signaler, pas exécuter | **14/14 instructions détectées et neutralisées** *avant* le premier appel d'agent ; registre du doc piégé **identique** au cas sain (§ 5) | ✅ résisté |
 
 > Relecture : en dry-run, C4/C6/C10 approuvent la **chaîne**, pas l'**analyse**.
-> Les seuls vrais verdicts d'analyse attendus viennent du run `--provider openai`.
+> Les vrais verdicts d'analyse viennent du run `--provider openai` — **exécuté**
+> le 24/09/2026 (§ 3.3) : 10/10 risques retrouvés, 49 inventés, 5 écarts de
+> niveau, lisibles dans la grille ci-dessus comme « écart réel constaté ».
 
 ---
 
@@ -284,7 +326,7 @@ l'équipe (décisions réelles, corrections réelles).
 
 ---
 
-## 8. Tests complémentaires (82 tests — rappel des plus démonstratifs)
+## 8. Tests complémentaires (86 tests — rappel des plus démonstratifs)
 
 | Test clé | Garantit que… |
 |---|---|
@@ -309,8 +351,10 @@ l'équipe (décisions réelles, corrections réelles).
 1. **La comparaison existe et discrimine** : `comparer_registres` + référence
    manuelle structurée (`data/reference_manuelle.json`) ; le mode `fidele=False`
    prouve que l'outil détecte oubli/invention/écart de niveau. En dry-run un
-   10/10 est **tautologique par conception** et **présenté comme tel** — la vraie
-   comparaison se fait avec `--provider openai` (procédure en § 7 du guide).
+   10/10 est **tautologique par conception** et **présenté comme tel**. **En mode
+   réel elle a été exécutée le 24/09/2026** (`space-bunny-free`, trace
+   `runs/run-20260924-110333/`) : 10/10 retrouvés · 49 inventés · 5 écarts de
+   niveau → l'outil discrimine réellement (§ 3.3).
 2. **L'injection est neutralisée en profondeur** : 14/14 instructions détectées et
    neutralisées (motifs FR/EN + paraphrase + obfuscation, faux positifs corrigés,
    délimiteurs aléatoires, `<<<...>>>` neutralisés) ; le registre du doc piégé reste
@@ -319,9 +363,12 @@ l'équipe (décisions réelles, corrections réelles).
    (accepte/corrige/diffère) signé `Dr Dupont`, correction avec recalcul du niveau.
 4. **Écarts de contrat assumés** : traitement unique vs combiné (R-06/R-08),
    double catégorisation LINDDUN partielle, périmètre 14 vs 5 actifs.
-5. **Recommandation soutenance** : exécuter `--provider openai --comparer` (cas B
-   et cas piégé) avec la clé du groupe, valider en direct, et discuter la grille
-   C1→C10 sur les écarts réels.
+5. **Pour la soutenance** : le run réel `--provider openai --comparer` (cas B **et**
+   cas piégé) peut être rejoué avec la clé du groupe (~10-20 min sur un modèle
+   gratuit) ; les traces existent déjà : `runs/run-20260924-110333/` (cas B, 10/10 ·
+   49 inventés · 5 écarts de niveau) et `runs/run-20260924-114019/` (cas piégé,
+   14/14 injections détectées en réel) pour la discussion de la grille C1→C10 sur
+   écarts réels.
 
 ---
 

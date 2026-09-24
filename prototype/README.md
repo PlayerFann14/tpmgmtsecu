@@ -51,7 +51,10 @@ python run.py run --case cases/casB_mediconsult.md --provider openai
 
 Le fournisseur réel (`src/llm/openai_compat.py`) lit uniquement les variables
 d'environnement `OPENAI_BASE_URL`, `OPENAI_API_KEY`, `OPENAI_MODEL` (aucun secret
-en dur) et appelle `POST {base_url}/chat/completions` avec `temperature=0.2`.
+en dur) et appelle `POST {base_url}/chat/completions` avec `temperature=0.2`
+(`OPENAI_TIMEOUT` règle le délai par appel). Transport : curl système quand il
+existe (TLS vérifié avec les CA de la machine, clé transmise hors ligne de commande
+via fichier de config `0600` éphémère), repli `urllib` sinon.
 
 > ⚠️ Le fournisseur réel **ne doit recevoir aucune donnée réelle et sensible**
 > (garde-fou G3) : le cas B est entièrement fictif.
@@ -59,7 +62,7 @@ en dur) et appelle `POST {base_url}/chat/completions` avec `temperature=0.2`.
 ## Tests
 
 ```bash
-cd prototype && PYTHONPATH=src python -m pytest tests/ -q   # 82 tests verts (8 fichiers)
+cd prototype && PYTHONPATH=src python -m pytest tests/ -q   # 86 tests verts (8 fichiers)
 ```
 
 Répartition : `test_sanitizer.py` (32) · `test_orchestrateur.py` · `test_comparaison.py` ·

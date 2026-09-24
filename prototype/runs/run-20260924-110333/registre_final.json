@@ -1,0 +1,1489 @@
+[
+  {
+    "id": "R-01",
+    "actif": "A-01",
+    "menace_id": "M-01",
+    "menace": "Un composant applicatif compromis ou porteur d’un jeton interne volé accède à des dossiers sans rapport avec la session légitime.",
+    "categorie": "STRIDE-I",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Refuser par défaut les requêtes dont le patient et la tâche du compte de service ne sont pas vérifiés dans la base (technique/préventif).",
+      "Tester l’attribution patient et alerter sur les lectures sans contexte déclaré (technique/détectif)."
+    ],
+    "justification": "Le contrôle d’autorisation doit être appliqué aux données elles-mêmes, indépendamment du rôle du service. Le risque résiduel reste moyen tant que cette contrainte et les tests d’abus ne sont pas vérifiés.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "MITRE ATT&CK",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : protection prévue, sous réserve de vérification de son efficacité.",
+    "proprietaire": "MediConsult — responsable des dossiers patients (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-02",
+    "actif": "A-02",
+    "menace_id": "M-02",
+    "menace": "Un compte de rédaction compromis remplace le contenu d’un compte rendu avant sa validation ou son enregistrement.",
+    "categorie": "STRIDE-T",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Verrouiller chaque version validée et tracer son auteur, son horodatage et toute substitution (technique/préventif).",
+      "Exiger une comparaison des versions et une approbation explicite pour toute modification ultérieure (administratif/directif)."
+    ],
+    "justification": "La réponse vise l’altération avant validation, sans supposer que l’authentification du rédacteur suffit. Le risque résiduel est estimé moyen après contrôle des cycles de modification.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : intégrité vérifiable, mais dépendant des droits de modification effectivement retirés.",
+    "proprietaire": "MediConsult — activité médicale (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-03",
+    "actif": "A-03",
+    "menace_id": "M-03",
+    "menace": "Une correspondance incorrecte entre dossier et ordonnance restitue l’ordonnance d’un patient à un autre compte.",
+    "categorie": "STRIDE-T",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Revérifier côté service médical la relation dossier–ordonnance–patient avant toute restitution (technique/préventif).",
+      "Bloquer et alerter lorsqu’un identifiant transmis ne correspond pas à l’utilisateur authentifié (technique/détectif)."
+    ],
+    "justification": "La réponse corrige la relation entre les objets au lieu de faire confiance aux identifiants transmis par l’API. Le risque résiduel demeure moyen en l’absence de tests de cohérence interpatients.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : séparation à valider par des tests de traversées entre patients.",
+    "proprietaire": "MediConsult — activité médicale (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-04",
+    "actif": "A-04",
+    "menace_id": "M-04",
+    "menace": "Des identifiants patients récupérés ailleurs sont rejoués sur l’accès public pour ouvrir l’agenda ou les documents médicaux.",
+    "categorie": "STRIDE-S",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Appliquer la MFA aux comptes patients et surveiller les réutilisations de mots de passe (technique/préventif).",
+      "Invalider les sessions lors d’un changement de secret et utiliser des liens de récupération à usage unique (technique/correctif)."
+    ],
+    "justification": "La possession d’un mot de passe seul ne suffit plus à établir une session patient. Le risque résiduel est estimé moyen ; l’existence de facteurs de possession adaptés doit être vérifiée.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "ANSSI"
+    ],
+    "risque_residuel": "moyen : dépendant du niveau réel de la MFA et de la résistance au rejeu.",
+    "proprietaire": "MediConsult — responsable des comptes patients (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-05",
+    "actif": "A-05",
+    "menace_id": "M-05",
+    "menace": "Un facteur MFA intercepté est remplacé ou rejoué dans une autre session ou sur un autre terminal.",
+    "categorie": "STRIDE-S",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Lier chaque Second Factor MFA à la session, au terminal et à un usage unique (technique/préventif).",
+      "Refuser une seconde authentification dont le contexte ne correspond pas à la session initiée (technique/préventif)."
+    ],
+    "justification": "La réponse neutralise la substitution et le rejeu de contexte au passage vers l’identité. Le risque résiduel reste moyen sans validation des propriétés de.session et des terminaux.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "ANSSI"
+    ],
+    "risque_residuel": "moyen : efficacy dépendant de la conformité technique de l’IAM/MFA.",
+    "proprietaire": "MediConsult — exploitation et sécurité (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-06",
+    "actif": "A-06",
+    "menace_id": "M-06",
+    "menace": "Un compte du secrétariat modifie sans autorisation la date, le patient associé ou l’état d’un rendez-vous.",
+    "categorie": "STRIDE-T",
+    "probabilite": "moyenne",
+    "impact": "moyen",
+    "niveau": "moyen",
+    "traitement": "réduire",
+    "mesures": [
+      "Contrôler dans le service d’agenda le patient associé, l’action demandée et les droits du compte (technique/préventif).",
+      "Consigner les anciennes et nouvelles valeurs avec l’identité de l’opérateur (technique/détectif)."
+    ],
+    "justification": "La réponse couvre à la fois l’altération volontaire et l’erreur de saisie. Le risque résiduel est estimé faible après vérification des contrôles côté service.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "faible : contrôle d’attribution et journalisation à valider.",
+    "proprietaire": "MediConsult — activité secrétariat (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-07",
+    "actif": "A-07",
+    "menace_id": "M-07",
+    "menace": "Un composant compromis du prestataire de paiement renvoie un statut falsifié et fait considérer une facture comme réglée.",
+    "categorie": "STRIDE-T",
+    "probabilite": "moyenne",
+    "impact": "moyen",
+    "niveau": "moyen",
+    "traitement": "transférer",
+    "mesures": [
+      "Faire vérifier l’authenticité cryptographique et la correspondance transaction–montant–facture avant changement d’état (technique/préventif).",
+      "Inscrire au contrat du prestataire des obligations vérifiables de sécurité, de notification et de continuité (administratif/directif)."
+    ],
+    "justification": "Le transfert proposé porte sur la responsabilité du prestataire, sans supprimer le contrôle local ni l’exposition. Le risque résiduel est estimé faible après vérification de l’authenticité des réponses.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI"
+    ],
+    "risque_residuel": "faible : dépendance résiduelle au prestataire et aux vérifications d’intégrité.",
+    "proprietaire": "MediConsult — activité facturation (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-08",
+    "actif": "A-08",
+    "menace_id": "M-08",
+    "menace": "Une confusion de contexte joint un message au mauvais fil et le rend visible à un autre participant.",
+    "categorie": "STRIDE-I",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Propager un contexte serveur non ambigu reliant patient, fil, conversation et destinataire (technique/préventif).",
+      "Revérifier ce contexte avant chaque lecture ou écriture et rejeter toute incohérence (technique/préventif)."
+    ],
+    "justification": "La réponse empêche qu’un jeton valide serve à authorize un autre fil. Le risque résiduel reste moyen si les passages entre passerelle et service ne sont pas testés ensemble.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : intégrité du contexte à vérifier entre les services.",
+    "proprietaire": "MediConsult — responsable de la messagerie (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-09",
+    "actif": "A-09",
+    "menace_id": "M-09",
+    "menace": "Une personne interceptant un lien de participation rejoint un salon et écoute une consultation.",
+    "categorie": "STRIDE-I",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Émettre des jetons de salon nominatifs, à durée courte et révocables (technique/préventif).",
+      "Ré-authentifier le participant attendu et invalider un jeton dès sa première utilisation (technique/préventif)."
+    ],
+    "justification": "La réponse remplace le partage d’un lien secret générique par une autorisation liée au participant. Le risque résiduel est estimé moyen selon l’efficacité du contrôle d’adhésion.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "ANSSI"
+    ],
+    "risque_residuel": "moyen : dépendant du prestataire et de la validation des jetons à l’adhésion.",
+    "proprietaire": "MediConsult — responsable du service visio (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-10",
+    "actif": "A-10",
+    "menace_id": "M-10",
+    "menace": "Une action erronée ou malveillante supprime des sauvegardes, les altère ou les rend incompatibles avec la restauration.",
+    "categorie": "STRIDE-D",
+    "probabilite": "faible",
+    "impact": "élevé",
+    "niveau": "moyen",
+    "traitement": "réduire",
+    "mesures": [
+      "Isoler les sauvegardes et soumettre leur suppression ou modification définitive à une double approbation (administratif/directif).",
+      "Contrôler leur intégrité et effectuer des restaurations périodiques dans un environnement de test (technique/détectif)."
+    ],
+    "justification": "La réponse traite la faible probabilité sans négliger l’impact élevé sur la reprise. Le risque résiduel reste moyen tant que la restaurabilité n’est pas démontrée.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : capacité de reprise à démontrer.",
+    "proprietaire": "MediConsult — exploitation (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-11",
+    "actif": "A-11",
+    "menace_id": "M-11",
+    "menace": "Des événements d’authentification sont perdus, purgés prématurément ou horodatés de manière incohérente.",
+    "categorie": "STRIDE-R",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Définir une durée de conservation couvrant la fenêtre d’investigation et surveiller les purges (administratif/directif).",
+      "Contrôler la continuité, l’horodatage et la consolidation des événements d’authentification (technique/détectif)."
+    ],
+    "justification": "La réponse couvre la perte, l’altération temporelle et la rupture d’acheminement. Le risque résiduel est estimé moyen après vérification de la couverture des sources.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : couverture et conservation des journaux à valider.",
+    "proprietaire": "MediConsult — exploitation et sécurité (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-12",
+    "actif": "A-12",
+    "menace_id": "M-12",
+    "menace": "Un compte à accès large efface des consultations de dossiers et masque une activité indue.",
+    "categorie": "STRIDE-R",
+    "probabilite": "faible",
+    "impact": "élevé",
+    "niveau": "moyen",
+    "traitement": "réduire",
+    "mesures": [
+      "Rendre les journaux d’accès non modifiables par les comptes 담당 de la base (technique/préventif).",
+      "Séparer l’administration des données et des journaux, avec alerte sur suppression et copie d’intégrité indépendante (administratif/préventif)."
+    ],
+    "justification": "La réponse réduit la possibilité d’effacer simultanément données et traces. Le risque résiduel reste moyen en raison de la dépendance à une administration indépendante.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : séparation des autorités à mettre en œuvre.",
+    "proprietaire": "MediConsult — exploitation et sécurité (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-13",
+    "actif": "A-13",
+    "menace_id": "M-13",
+    "menace": "Une défaillance critique n’est pas détectée ou ne déclenche pas l’escalade vers l’exploitation.",
+    "categorie": "STRIDE-D",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Superviser en continu l’identité, la visioconférence et les composants critiques avec seuils adaptés (technique/détectif).",
+      "Tester périodiquement les routes d’alerte et l’escalade jusqu’à un responsable d’exploitation identifié (administratif/détectif)."
+    ],
+    "justification": "La présence de sondes ne suffit pas : leur couverture et la réception réelle des alertes sont à vérifier. Le risque résiduel est estimé moyen.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI"
+    ],
+    "risque_residuel": "moyen : détection et escalade à éprouver par des tests.",
+    "proprietaire": "MediConsult — exploitation (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-14",
+    "actif": "A-14",
+    "menace_id": "M-14",
+    "menace": "Un attaquant accède à une clé privée et produit un certificat usurpant l’identité cryptographique d’un service.",
+    "categorie": "STRIDE-S",
+    "probabilite": "faible",
+    "impact": "élevé",
+    "niveau": "moyen",
+    "traitement": "réduire",
+    "mesures": [
+      "Conserver les clés privées dans un stockage dédié avec séparation des droits d’administration et d’usage (technique/préventif).",
+      "Inventorier les associations clé–certificat–service et surveiller leur utilisation (technique/détectif)."
+    ],
+    "justification": "La réponse porte sur le prérequis de compromission et sur l’usage des clés, sans supposer leur implantation. Le risque résiduel reste moyen sans vérification indépendante de leur garde.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "OWASP ASVS"
+    ],
+    "risque_residuel": "moyen : protection des clés et de leur cycle de vie à vérifier.",
+    "proprietaire": "MediConsult — exploitation et sécurité (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-15",
+    "actif": "A-15",
+    "menace_id": "M-15",
+    "menace": "Un logiciel malveillant sur un téléphone vole les identifiants saisis dans l’application mobile.",
+    "categorie": "STRIDE-S",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Contrôler l’intégrité de l’application et связывать chaque session à l’identité du client attendue (technique/préventif).",
+      "Détecter les applications signées de façon incohérente et révoquer les sessions sensibles (technique/détectif)."
+    ],
+    "justification": "La réponse reconnaît qu’un client compromis ne doit pas pouvoir présenter freely des identifiants comme celui attendu. Le risque résiduel reste moyen sur le terminal patient.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "ANSSI"
+    ],
+    "risque_residuel": "moyen : intégrité du terminal non entièrement contrôlable à distance.",
+    "proprietaire": "MediConsult — responsable applicatif (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-16",
+    "actif": "A-16",
+    "menace_id": "M-16",
+    "menace": "Un patient authentifié modifie l’identifiant d’un dossier et obtient une donnée appartenant à un autre patient.",
+    "categorie": "STRIDE-I",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Relier chaque objet demandé à l’identité du patient authentifié, indépendamment du rôle (technique/préventif).",
+      "Bloquer les références non autorisées et tester automatiquement les tentatives interpatients (technique/détectif)."
+    ],
+    "justification": "La réponse corrige l’autorisation au niveau de l’objet, insuffisamment protégée par la seule session. Le risque résiduel est estimé moyen après tests directs.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : contrôle objet–patient à vérifier dans chaque fonction.",
+    "proprietaire": "MediConsult — responsable applicatif (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-17",
+    "actif": "A-17",
+    "menace_id": "M-17",
+    "menace": "Un attaquant usurpe un médecin après avoir obtenu son mot de passe et Trompé son Second Factor MFA.",
+    "categorie": "STRIDE-S",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Utiliser une MFA résistante à l’hameçonnage et lier les authentifications à la session (technique/préventif).",
+      "Détecter les changements de facteur ou de contexte et révoquer immédiatement les sessions associées (technique/correctif)."
+    ],
+    "justification": "La réponse vise l��������absence de preuve indépendante du facteur et sa réutilisation. Le risque résiduel reste moyen sans vérification du type de MFA et des mécanismes de récupération.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "ANSSI"
+    ],
+    "risque_residuel": "moyen : efficacité de la MFA dépendant de sa configuration et de son adoption.",
+    "proprietaire": "MediConsult — responsable applicatif (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-18",
+    "actif": "A-18",
+    "menace_id": "M-18",
+    "menace": "Un poste interne compromis utilise la session du secrétariat pour accéder à des fonctions d’agenda ou de facturation non nécessaires.",
+    "categorie": "STRIDE-E",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Limiter les droits de la console par rôle, fonction et objet autorisé, indépendamment de la présence sur le réseau interne (technique/préventif).",
+      "Surveiller les accès étendus et révoquer les sessions actives lors d’un changement de contexte (technique/détectif)."
+    ],
+    "justification": "La réponse évite que l’appartenance au réseau interne devienne une autorisation générale. Le risque résiduel est estimé moyen après revue des droits effectifs.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "MITRE ATT&CK"
+    ],
+    "risque_residuel": "moyen : cloisonnement des fonctions à contrôler.",
+    "proprietaire": "MediConsult — responsable de la console (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-19",
+    "actif": "A-19",
+    "menace_id": "M-19",
+    "menace": "Un attaquant contourne le WAF par une route, un port ou un chemin d’accès non inspecté.",
+    "categorie": "STRIDE-E",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Bloquer tout accès direct non autorisé à l’API et maintenir une liste vérifiée des routes publiées (technique/préventif).",
+      "Tester la cohérence entre le WAF, les pare-feu et les routes effectivement ouvertes (technique/détectif)."
+    ],
+    "justification": "La réponse ne repose pas sur le seul filtrage du WAF mais sur une fermeture des voies de contournement. Le risque résiduel reste moyen sans inventaire de l’exposition.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "OWASP ASVS"
+    ],
+    "risque_residuel": "moyen : inventaire des routes et tests d’exposition à maintenir.",
+    "proprietaire": "MediConsult — exploitation et sécurité (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-20",
+    "actif": "A-20",
+    "menace_id": "M-20",
+    "menace": "Une concentration de requêtes épuise l’API Gateway et bloque simultanément les parcours patients, médecins et secrétariat.",
+    "categorie": "STRIDE-D",
+    "probabilite": "élevée",
+    "impact": "élevé",
+    "niveau": "critique",
+    "traitement": "réduire",
+    "mesures": [
+      "Appliquer des limites de débit et de taille adaptées aux profils d’usage, avec files d’attente séparées (technique/préventif).",
+      "Dimensionner la passerelle, isoler les parcours critiques et tester la résistance aux pics (technique/détectif)."
+    ],
+    "justification": "Les caractéristiques initiales sont critiques et une simple règle de débit ne suffit pas. Le risque résiduel est maintenu élevé en l’absence de mesures de capacité vérifiées.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "OWASP ASVS"
+    ],
+    "risque_residuel": "élevé : capacité et mécanismes de protection contre les dénis de service à démontrer.",
+    "proprietaire": "MediConsult — responsable applicatif (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-21",
+    "actif": "A-21",
+    "menace_id": "M-21",
+    "menace": "La défaillance du service d’identité maintient des sessions dont l’authentification ou la MFA ne peut plus être confirmée.",
+    "categorie": "STRIDE-D",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Appliquer une expiration de session et une révocation sûre lorsque l’état IAM ou la MFA ne peut être confirmé (technique/correctif).",
+      "Tester la reprise du service, la cohérence temporelle et le comportement des composants dépendants (technique/détectif)."
+    ],
+    "justification": "La réponse évite de prolonger un accès dont l’état d’authentification est incertain. Le risque résiduel est estimé moyen, l’indisponibilité de l’identité restant opérationnelle.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "ANSSI"
+    ],
+    "risque_residuel": "moyen : continuité de l’IAM et des composants dépendants à valider.",
+    "proprietaire": "MediConsult — responsable du service identité (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-22",
+    "actif": "A-22",
+    "menace_id": "M-22",
+    "menace": "Un compte patient ou une intégration compromis modifie un rendez-vous appartenant à une autre personne.",
+    "categorie": "STRIDE-T",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Vérifier dans le service d’agenda la propriété du rendez-vous avant toute modification (technique/préventif).",
+      "Rejeter les requêtes interpatients et demander une authentification renforcée pour les accès d’intégration (technique/préventif)."
+    ],
+    "justification": "Le rôle patient seul ne suffit pas à autoriser un objet. Le risque résiduel reste moyen après vérification des API et comptes de service concernés.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : contrôle de propriété à étendre à toutes les opérations d’agenda.",
+    "proprietaire": "MediConsult — responsable applicatif (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-23",
+    "actif": "A-23",
+    "menace_id": "M-23",
+    "menace": "Une panne du prestataire de visioconférence empêche l’établissement des salons et suspend les téléconsultations.",
+    "categorie": "STRIDE-D",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "transférer",
+    "mesures": [
+      "Prévoir un mode de repli opérationnel pour les parcours de visio et le tester périodiquement (technique/compensatoire).",
+      "Préciser au contrat les engagements de continuité, de notification et d’assistance en cas d’incident (administratif/directif)."
+    ],
+    "justification": "Le transfert proposé porte sur la responsabilité du prestataire ; il ne supprime pas la dépendance technique. Le risque résiduel reste moyen sans repli ni objectifs de reprise vérifiés.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : continuité du prestataire et solutions de repli à valider.",
+    "proprietaire": "MediConsult — responsable du service visio (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-24",
+    "actif": "A-24",
+    "menace_id": "M-24",
+    "menace": "Une requête de messagerie mal routée rend un échange antérieur consultable par un autre patient.",
+    "categorie": "STRIDE-I",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Propager et revérifier l’identité de la session, de la conversation et du destinataire entre la passerelle et le service (technique/préventif).",
+      "Détecter les accès dont le contexte ne correspond pas et conserver une trace de l失败的 tentative (technique/détectif)."
+    ],
+    "justification": "La réponse traite la confusion de routage à chaque frontière, sans faire confiance au seul identifiant de fil. Le risque résiduel est estimé moyen après tests interpatients.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : cohérence du contexte de messagerie à valider.",
+    "proprietaire": "MediConsult — responsable applicatif (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-25",
+    "actif": "A-25",
+    "menace_id": "M-25",
+    "menace": "Un compte du service médical compromis interroge la base sans filtre d’attribution et obtient des dossiers hors périmètre.",
+    "categorie": "STRIDE-I",
+    "probabilite": "élevée",
+    "impact": "élevé",
+    "niveau": "critique",
+    "traitement": "réduire",
+    "mesures": [
+      "Appliquer le filtre patient dans chaque requête de base et limiter les comptes de service à des opérations-determined (technique/préventif).",
+      "Détecter les requêtes sans contrainte d’attribution et révoquer le compte après investigation (technique/correctif)."
+    ],
+    "justification": "Une interface correctement filtrée ne protège pas une requête falsifiée vers la base. Le risque résiduel est maintenu élevé tant que le cloisonnement des comptes compromis n’est pas démontré.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "MITRE ATT&CK",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "élevé : accès interpatients à confiner dans chaque couche.",
+    "proprietaire": "MediConsult — responsable applicatif (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-26",
+    "actif": "A-26",
+    "menace_id": "M-26",
+    "menace": "Un utilisateur de la console modifie sans autorisation un montant, un remboursement ou un statut de facture.",
+    "categorie": "STRIDE-T",
+    "probabilite": "moyenne",
+    "impact": "moyen",
+    "niveau": "moyen",
+    "traitement": "réduire",
+    "mesures": [
+      "Séparer les droits de saisie, de validation et d’annulation et contrôler les changements d’état (technique/préventif).",
+      "Rendre obligatoire une double validation pour les montants et remboursements significatifs (administratif/directif)."
+    ],
+    "justification": "La réponse limite les opérations d’un compte ordinaire et rend les changements sensibles traçables. Le risque résiduel est estimé faible après vérification des règles métier.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "faible : séparation des opérations à mettre en œuvre.",
+    "proprietaire": "MediConsult — responsable applicatif (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-27",
+    "actif": "A-27",
+    "menace_id": "M-27",
+    "menace": "Un poste interne compromis sature les liens ou modifie le routage et coupe l’accès de la console à l’API.",
+    "categorie": "STRIDE-D",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Cloisonner les segments et les flux autorisés de la console vers l’API (technique/préventif).",
+      "Limiter les débits par segment et surveiller les routes, les liens et les changements de configuration (technique/détectif)."
+    ],
+    "justification": "La réponse empêche qu’un poste compromis affecte toute l’infrastructure interne. Le risque résiduel reste moyen sans capacité de résorption documentée.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "OWASP ASVS"
+    ],
+    "risque_residuel": "moyen : cloisonnement et capacité de résorption à vérifier.",
+    "proprietaire": "MediConsult — exploitation (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-28",
+    "actif": "A-28",
+    "menace_id": "M-28",
+    "menace": "Un attaquant récupère la session d’un administrateur après avoir Trompé sa MFA puis utilise le VPN.",
+    "categorie": "STRIDE-E",
+    "probabilite": "faible",
+    "impact": "élevé",
+    "niveau": "moyen",
+    "traitement": "réduire",
+    "mesures": [
+      "Protéger le VPN par une MFA résistante à l’hameçonnage et un accès conditionnel lié au terminal (technique/préventif).",
+      "Aiguiller les actions privilégiées vers une session nominative et un point d’administration contrôlé (technique/préventif)."
+    ],
+    "justification": "La réponse porte sur les conditions d’accès et d’exploitation du VPN, sans supposer que son architecture est déjà adaptée. Le risque résiduel reste moyen.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "ANSSI",
+      "MITRE ATT&CK"
+    ],
+    "risque_residuel": "moyen : contrôle des accès privilégiés à vérifier.",
+    "proprietaire": "MediConsult — exploitation (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-29",
+    "actif": "A-29",
+    "menace_id": "M-29",
+    "menace": "L’indisponibilité du prestataire d’hébergement HDS rend simultanément les applications, les données et les journaux inaccessibles.",
+    "categorie": "STRIDE-D",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "transférer",
+    "mesures": [
+      "Préciser au contrat des engagements de continuité, de notification et d’assistance, avec procédure de crise coordonnée (administratif/directif).",
+      "Prévoir et tester une solution de repli pour les fonctions critiques, notamment l’accès aux données et aux journaux (technique/compensatoire)."
+    ],
+    "justification": "Le transfert proposé clarifie la responsabilité du prestataire sans supprimer la dépendance commune. Le risque résiduel reste moyen sans objectifs RTO/RPO ni repli vérifié.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : continuité de l’hébergement et objectifs de reprise à définir.",
+    "proprietaire": "MediConsult — gestion de l’hébergement (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-30",
+    "actif": "A-30",
+    "menace_id": "M-30",
+    "menace": "Un jeton de session de visioconférence intercepté est rejoué pour recevoir les médias d’une consultation.",
+    "categorie": "STRIDE-I",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "transférer",
+    "mesures": [
+      "Exiger du prestataire des jetons liés au participant, au salon et à une fenêtre d’usage limitée (administratif/directif).",
+      "Ré-authentifier à l’adhésion et révoquer les jetons à la fin de session ou après incident (technique/préventif)."
+    ],
+    "justification": "Le transfert de responsabilité au prestataire est complété par une contrainte de session vérifiable. Le risque résiduel reste moyen selon les capacités du fournisseur.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "ANSSI"
+    ],
+    "risque_residuel": "moyen : liaison des jetons etCapabilities du prestataire à valider.",
+    "proprietaire": "MediConsult — gestion du service visio (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-31",
+    "actif": "A-31",
+    "menace_id": "M-31",
+    "menace": "Une notification sortante contient des éléments nominatifs permettant à un tiers non autorisé d’identifier une consultation.",
+    "categorie": "LINDDUN-I",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "transférer",
+    "mesures": [
+      "Réduire le contenu des notifications au minimum nécessaire et limiter les métadonnées transmises au prestataire (administratif/directif).",
+      "Exiger par contrat une protection des métadonnées, une restriction des accès et la notification des incidents (administratif/directif)."
+    ],
+    "justification": "Le transfert proposé porte sur les obligations du fournisseur ; la minimisation reste nécessaire. A-31 désigne ici le prestataire, pas un actif patient explicitement recensé. Le risque résiduel est estimé moyen.",
+    "sources": [
+      "LINDDUN",
+      "RGPD art. 32",
+      "ISO/IEC 27002",
+      "ANSSI"
+    ],
+    "risque_residuel": "moyen : contenu réel des notifications et contrôles contractuels à vérifier.",
+    "proprietaire": "MediConsult — gestion des notifications (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-32",
+    "actif": "A-32",
+    "menace_id": "M-32",
+    "menace": "Un composant du prestataire falsifie un résultat de paiement sans correspondance avec la commande ou le montant.",
+    "categorie": "STRIDE-T",
+    "probabilite": "moyenne",
+    "impact": "moyen",
+    "niveau": "moyen",
+    "traitement": "transférer",
+    "mesures": [
+      "Faire contracter au prestataire des engagements vérifiables d’authenticité, de disponibilité et de notification des incidents (administratif/directif).",
+      "Vérifier localement l’authenticité cryptographique et la correspondance de la réponse avec la transaction attendue (technique/préventif)."
+    ],
+    "justification": "Le transfert de responsabilité ne dispense pas de la vérification locale du règlement. Le risque résiduel est estimé faible après ces contrôles.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "OWASP ASVS"
+    ],
+    "risque_residuel": "faible : intégrité des réponses à valider.",
+    "proprietaire": "MediConsult — responsable applicatif (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-33",
+    "actif": "A-33",
+    "menace_id": "M-33",
+    "menace": "Un médecin authentifié consulte des dossiers sans lien avec les patients qu’il suit.",
+    "categorie": "STRIDE-I",
+    "probabilite": "élevée",
+    "impact": "élevé",
+    "niveau": "critique",
+    "traitement": "réduire",
+    "mesures": [
+      "Limiter les accès à la relation médecin–patient vérifiée côté service, avec révocation à la fin du suivi (technique/préventif).",
+      "Journaliser les accès et alerter sur les recherches de patients hors de la relation autorisée (technique/détectif)."
+    ],
+    "justification": "La réponse empêche la profession seule de grants un accès général. Le risque résiduel est maintenu élevé en l’absence de cloisonnement vérifié de la vue multi-patients.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "MITRE ATT&CK",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "élevé : accès médecin–patient à confiner et à surveiller.",
+    "proprietaire": "MediConsult — activité médicale (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-34",
+    "actif": "A-34",
+    "menace_id": "M-34",
+    "menace": "Un compte de support consulte des dossiers sans rapport avec l’accueil, l’agenda ou la facturation.",
+    "categorie": "STRIDE-E",
+    "probabilite": "élevée",
+    "impact": "élevé",
+    "niveau": "critique",
+    "traitement": "réduire",
+    "mesures": [
+      "Limiter le support aux fonctions et aux objets explicitement attribués, sans consultation générale des dossiers (technique/préventif).",
+      "Surveiller les consultations de dossiers et déclencher une revue des accès en cas d’écart (technique/détectif)."
+    ],
+    "justification": "La réponse differentiate l’accès interne de l’accès aux données de santé. Le risque résiduel est maintenu élevé tant que le périmètre du support n’est pas effectivement réduit.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "MITRE ATT&CK",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "élevé : cloisonnement du support à démontrer.",
+    "proprietaire": "MediConsult — activité secrétariat et support (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-35",
+    "actif": "A-35",
+    "menace_id": "M-35",
+    "menace": "Un administrateur technique désactive des contrôles, altère la configuration ou perturbe les sauvegardes.",
+    "categorie": "STRIDE-T",
+    "probabilite": "faible",
+    "impact": "élevé",
+    "niveau": "moyen",
+    "traitement": "réduire",
+    "mesures": [
+      "Séparer les tâches sensibles et imposer une approbation indépendante pour les changements à fort impact (technique/préventif).",
+      "Conserver une trace inviolable des actions et vérifier périodiquement la intégrité des sauvegardes (technique/détectif)."
+    ],
+    "justification": "La réponse reconnaît le risque d’un usage malveillant d’un accès légitime. Le risque résiduel reste moyen sans séparation indépendante des pouvoirs.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "OWASP ASVS"
+    ],
+    "risque_residuel": "moyen : séparation et contrôle des opérations privilégiées à valider.",
+    "proprietaire": "MediConsult — exploitation (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-36",
+    "actif": "A-36",
+    "menace_id": "M-36",
+    "menace": "Une alerte de rendez-vous est envoyée à un numéro détourné et révèle l’identité et l’activité de santé d’une personne.",
+    "categorie": "LINDDUN-D",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Vérifier l’identité du canal et l’affectation du destinataire avant tout envoi nominatif (technique/préventif).",
+      "Réduire le contenu à un message générique et demander une confirmation dans l’espace authentifié pour les informations détaillées (administratif/directif)."
+    ],
+    "justification": "La réponse traite l’erreur d’affectation et la divulgation induite par le canal. Le risque résiduel reste moyen sans validation des numéros et des processus de changement.",
+    "sources": [
+      "LINDDUN",
+      "RGPD art. 32",
+      "ISO/IEC 27002",
+      "ANSSI"
+    ],
+    "risque_residuel": "moyen : circuit de vérification du destinataire à valider.",
+    "proprietaire": "MediConsult — activité patient (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-37",
+    "actif": "A-37",
+    "menace_id": "M-37",
+    "menace": "L’absence de titulaire ou de suppléant vérifiable retarde la coordination d’un incident contenant des données de santé.",
+    "categorie": "STRIDE-D",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Désigner un titulaire et un suppléant, maintenir leurs coordonnées et tester la chaîne d’escalade (administratif/directif).",
+      "Prévoir une alerte vers la direction et la sécurité lorsque la fonction conformité ne répond pas (technique/correctif)."
+    ],
+    "justification": "La réponse ne substitue pas le DPO à l’exploitation : elle garantit son remplacement opérationnel et l’escalade. Le risque résiduel est estimé moyen sans identité ni suppléance confirmés.",
+    "sources": [
+      "ISO/IEC 27002",
+      "RGPD art. 32",
+      "LINDDUN",
+      "ANSSI"
+    ],
+    "risque_residuel": "moyen : identité du titulaire, suppléance et disponibilité à confirmer.",
+    "proprietaire": "MediConsult — gouvernance de la conformité (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-38",
+    "actif": "A-38",
+    "menace_id": "M-38",
+    "menace": "Une participation à une consultation demeure conservée sous l’identité du patient et peut ensuite être décontextualisée.",
+    "categorie": "LINDDUN-N",
+    "probabilite": "moyenne",
+    "impact": "moyen",
+    "niveau": "moyen",
+    "traitement": "éviter",
+    "mesures": [
+      "Interdire toute conservation de l’identité de contact et du motif au-delà d’une durée strictement justifiable, validée par la gouvernance de la conformité (administratif/directif).",
+      "Suspendre le traitement dépendant de cette conservation tant qu’un mécanisme de minimisation, de retrait et de traçabilité n’est pas vérifié (technique/préventif)."
+    ],
+    "justification": "Le scénario est conditionnel : la conservation réelle n’est pas documentée. L’évitement proposé consiste à ne pas conserver l’association fautive ; le risque résiduel reste moyen en l’absence de vérification.",
+    "sources": [
+      "LINDDUN",
+      "RGPD art. 32",
+      "ISO/IEC 27002",
+      "ANSSI"
+    ],
+    "risque_residuel": "moyen : pratique de conservation et retrait des métadonnées à établir.",
+    "proprietaire": "MediConsult — direction (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-39",
+    "actif": "A-39",
+    "menace_id": "M-39",
+    "menace": "Un traitement d’exploitation/export réunit identité, soignant, horodatage et données de dossier et permet de construire un profil de soins.",
+    "categorie": "LINDDUN-L",
+    "probabilite": "élevée",
+    "impact": "élevé",
+    "niveau": "critique",
+    "traitement": "réduire",
+    "mesures": [
+      "Interdire par défaut les exports réunissant identité du patient et éléments du dossier sans finalité documentée (administratif/directif).",
+      "Pseudonymiser les identités dans les traitements d’exploitation et cloisonner les rapprochement autorisés (technique/préventif)."
+    ],
+    "justification": "La réponse porte sur la minimisation et la séparation des rapprochement d’exploitation. Le risque résiduel est maintenu élevé sans contrôle technique des exports existants.",
+    "sources": [
+      "LINDDUN",
+      "RGPD art. 32",
+      "ISO/IEC 27002",
+      "OWASP ASVS"
+    ],
+    "risque_residuel": "élevé : traitements de rapprochement et exports à inventory et à limiter.",
+    "proprietaire": "MediConsult — direction (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-40",
+    "actif": "A-40",
+    "menace_id": "M-40",
+    "menace": "Une ouverture simultanée importante des parcours et des flux de visioconférence sature les ressources et interrompt des téléconsultations.",
+    "categorie": "STRIDE-D",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Dimensionner les parcours et flux selon les volumes simultanés attendus et isoler les consultations critiques (technique/préventif).",
+      "Tester les périodes de pointe et surveiller la qualité de service et les files d’attente (technique/détectif)."
+    ],
+    "justification": "Les caractéristiques initiales sont élevées. Le risque résiduel reste élevé faute de volumes de dimensionnement, de capacité de pointe et de résultats d’essais fournis.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "OWASP ASVS"
+    ],
+    "risque_residuel": "élevé : capacité nominale et isolation des parcours à démontrer.",
+    "proprietaire": "MediConsult — activité de soins (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-41",
+    "actif": "A-01",
+    "menace_id": "M-41",
+    "menace": "Un patient authentifié appelle une fonction métier de l’API et obtient les données d’un autre patient.",
+    "categorie": "STRIDE-E",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Ne pas transmettre un rôle général de patient vers une fonction métier exigeant des droits supplémentaires (technique/préventif).",
+      "Vérifier le patient et l’autorisation de l’objet dans le service appelé avant toute réponse (technique/préventif)."
+    ],
+    "justification": "La réponse corrige l’héritage de privilèges entre la passerelle et le service. Le risque résiduel reste moyen après tests de chaque route exposée.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "MITRE ATT&CK",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : routage et autorisation des fonctions à vérifier.",
+    "proprietaire": "MediConsult — responsable des dossiers patients (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-42",
+    "actif": "A-03",
+    "menace_id": "M-42",
+    "menace": "Une vue multi-patients relie les ordonnances, personnes, traitements et périodes de consultation d’un même soignant.",
+    "categorie": "LINDDUN-L",
+    "probabilite": "élevée",
+    "impact": "élevé",
+    "niveau": "critique",
+    "traitement": "réduire",
+    "mesures": [
+      "Restreindre les vues par patient et n’autoriser une agrégation multi-patients qu’avec une finalité identifiée (technique/préventif).",
+      "Présenter les résultats avec une minimisation des liens permanents et limiter les exports de cette agrégation (administratif/directif)."
+    ],
+    "justification": "La réponse réduit les rapprochement non nécessaires sans supposer que toute consultation multi-patients doit être interdite. Le risque résiduel est maintenu élevé sans cloisonnement vérifié.",
+    "sources": [
+      "LINDDUN",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "élevé : agrégation multi-patients et finalités à contrôler.",
+    "proprietaire": "MediConsult — activité médicale (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-43",
+    "actif": "A-15",
+    "menace_id": "M-43",
+    "menace": "Une application mobile modifiée remplace l’identité patient dans une requête et se fait passer pour le client légitime.",
+    "categorie": "STRIDE-T",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Lier la session serveur à l’identité et à l’état vérifiés du client sans faire confiance aux identifiants de requête (technique/préventif).",
+      "Contrôler l’intégrité des publications mobiles et révoquer les requêtes provenant d’un client non conforme (technique/correctif)."
+    ],
+    "justification": "La réponse empêche l’identité déclarée par le client de devenir l’autorité d’autorisation. Le risque résiduel reste moyen sur un terminal compromis.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "MITRE ATT&CK",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : liaison client-serveur à vérifier.",
+    "proprietaire": "MediConsult — responsable applicatif (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-44",
+    "actif": "A-16",
+    "menace_id": "M-44",
+    "menace": "Un script exécuté dans le navigateur d’un patient modifie l’agenda ou le profil lié à sa session.",
+    "categorie": "STRIDE-T",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Échapper les contenus non fiables, valider les données et appliquer une politique de sécurité de contenu adaptée au site (technique/préventif).",
+      "Exiger un jeton de sécurité contre les requêtes intersites pour les opérations sensibles et tester les points d’injection (technique/préventif)."
+    ],
+    "justification": "La réponse traite l’exécution dans le navigateur et la protection des opérations sensibles, sans reposer sur la seule session. Le risque résiduel reste moyen après audit des contenus et tests.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "MITRE ATT&CK",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : qualité des contrôles du site à auditer.",
+    "proprietaire": "MediConsult — responsable applicatif (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-45",
+    "actif": "A-19",
+    "menace_id": "M-45",
+    "menace": "Un volume de requêtes ou de contenus coûteux à analyser épuise le WAF et dégrade les requêtes légitimes vers l’API.",
+    "categorie": "STRIDE-D",
+    "probabilite": "élevée",
+    "impact": "élevé",
+    "niveau": "critique",
+    "traitement": "réduire",
+    "mesures": [
+      "Limiter les requêtes et la complexité des analyses par source, tout en转发ant les profils d’usage légitimes (technique/préventif).",
+      "Dimensionner le WAF et tester la résistance aux requêtes coûteuses dans un environnement contrôlé (technique/détectif)."
+    ],
+    "justification": "Les caractéristiques initiales sont critiques et le filtrage peut lui-même devenir un goulot d’étranglement. Le risque résiduel est maintenu élevé sans capacité d’inspection validée.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "OWASP ASVS"
+    ],
+    "risque_residuel": "élevé : capacité d’inspection et continuité de l’API à démontrer.",
+    "proprietaire": "MediConsult — exploitation et sécurité (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-46",
+    "actif": "A-25",
+    "menace_id": "M-46",
+    "menace": "Un client API compromis atteint une fonction interne et hérite des privilèges accordés à une provenance interne.",
+    "categorie": "STRIDE-E",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Authentifier chaque appel et propager le rôle et le patient sans déduire une confiance de la seule provenance réseau (technique/préventif).",
+      "Restreindre les fonctions internes aux composants explicitement autorisés et tester les appels depuis la frontière publique (technique/préventif)."
+    ],
+    "justification": "La réponse remplace la confiance implicite par une autorisation de fonction et de patient. Le risque résiduel reste moyen sans inventaire des routes internes.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "MITRE ATT&CK",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : routage interne et contrôle d’accès à vérifier.",
+    "proprietaire": "MediConsult — responsable applicatif (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-47",
+    "actif": "A-01",
+    "menace_id": "M-47",
+    "menace": "Un compte de service compromis remplace des champs de dossiers ou bloque des mises à jour médicales.",
+    "categorie": "STRIDE-T",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Limiter chaque compte de service aux objets et opérations nécessaires et séparer les pouvoirs d’écriture par fonction (technique/préventif).",
+      "Détecter les écritures massives ou anormales, préserver leur traçabilité et pouvoir interrompre le compte compromis (technique/correctif)."
+    ],
+    "justification": "La réponse réduit la portée d’une compromission de compte transverse. Le risque résiduel reste moyen si les écritures interpatients ne sont pas bloquées.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "MITRE ATT&CK",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : cloisonnement des comptes de service à valider.",
+    "proprietaire": "MediConsult — responsable des dossiers patients (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-48",
+    "actif": "A-12",
+    "menace_id": "M-48",
+    "menace": "Un administrateur supprime ou substitue des journaux d’accès avant leur consolidation.",
+    "categorie": "STRIDE-R",
+    "probabilite": "faible",
+    "impact": "élevé",
+    "niveau": "moyen",
+    "traitement": "réduire",
+    "mesures": [
+      "Conserver une copie d’intégrité indépendante des journaux, hors de l’autorité qui les produit (technique/préventif).",
+      "Rendre les journaux non modifiables et alerter sur toute suppression, substitution ou consolidation incomplète (technique/détectif)."
+    ],
+    "justification": "La réponse traite le prérequis d’action administrative et l’absence de copie indépendante. Le risque résiduel reste moyen après vérification de cette séparation.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : intégrité indépendante des journaux à démontrer.",
+    "proprietaire": "MediConsult — exploitation et sécurité (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-49",
+    "actif": "A-18",
+    "menace_id": "M-49",
+    "menace": "Un compte de la console exporte l’agenda complet avec des noms, horaires et motifs alors que son périmètre est limité.",
+    "categorie": "STRIDE-I",
+    "probabilite": "élevée",
+    "impact": "élevé",
+    "niveau": "critique",
+    "traitement": "réduire",
+    "mesures": [
+      "Limiter les champs exportés au périmètre réellement utile et autoriser l’export nominatif seulement après justification (administratif/directif).",
+      "Contrôler l’export côté serveur, journaliser son auteur et son contenu, et alerter sur un volume inhabituel (technique/détectif)."
+    ],
+    "justification": "La réponse porte sur l’export comme surface de divulgation massive. Le risque résiduel est maintenu élevé tant que le serveur ne filtre pas réellement les données exportées.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "MITRE ATT&CK",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "élevé : périmètre des exports à cloisonner et vérifier.",
+    "proprietaire": "MediConsult — responsable de la console (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-50",
+    "actif": "A-07",
+    "menace_id": "M-50",
+    "menace": "Un utilisateur modifie un montant après son contrôle et transmet une donnée de facturation non fiable au paiement.",
+    "categorie": "STRIDE-T",
+    "probabilite": "élevée",
+    "impact": "moyen",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Rendre une modification de montant immuable après validation et contrôler automatiquement le total avant paiement (technique/préventif).",
+      "Exiger une double validation et conserver l’historique des changements de montant et de statut (administratif/directif)."
+    ],
+    "justification": "Les caractéristiques initiales sont élevées, avec une probabilité élevée et un impact moyen. Le risque résiduel est estimé moyen après contrôle des changements post-validation.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "RGPD art. 32",
+      "ANSSI"
+    ],
+    "risque_residuel": "moyen : séparation validation–transmission à vérifier.",
+    "proprietaire": "MediConsult — activité facturation (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-51",
+    "actif": "A-29",
+    "menace_id": "M-51",
+    "menace": "Un compte d’administration du prestataire accède aux machines, volumes ou instantanés et extrait des dossiers.",
+    "categorie": "STRIDE-I",
+    "probabilite": "faible",
+    "impact": "élevé",
+    "niveau": "moyen",
+    "traitement": "transférer",
+    "mesures": [
+      "Exiger du prestataire des comptes nominatifs, des accès nominatifs et une traçabilité de chaque action d’administration (administratif/directif).",
+      "Faire vérifier le cloisonnement des volumes et instantanés par environnement et la révocation des accès après usage (technique/préventif)."
+    ],
+    "justification": "Le transfert de responsabilité est incomplet sans isolation des données hébergées. Le risque résiduel reste moyen, l’exposition physique et logique demeurant chez le prestataire.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "RGPD art. 32",
+      "LINDDUN",
+      "ANSSI"
+    ],
+    "risque_residuel": "moyen : contrôles d’accès et cloisonnement du prestataire à vérifier.",
+    "proprietaire": "MediConsult — gestion de l’hébergement (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-52",
+    "actif": "A-30",
+    "menace_id": "M-52",
+    "menace": "Un composant ou une configuration compromise du prestataire de visioconférence redirige les médias vers un tiers.",
+    "categorie": "STRIDE-T",
+    "probabilite": "faible",
+    "impact": "élevé",
+    "niveau": "moyen",
+    "traitement": "transférer",
+    "mesures": [
+      "Préciser au contrat les engagements de sécurité, de notification, d’audit et de continuité du prestataire (administratif/directif).",
+      "Prévoir une vérification indépendante de la configuration et une procédure de coupure ou de repli lors d’un écart (technique/compensatoire)."
+    ],
+    "justification": "Le transfert proposé porte sur la responsabilité du fournisseur, pas sur l’élimination du risque au sein de son environnement. Le risque résiduel est estimé moyen.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "OWASP ASVS"
+    ],
+    "risque_residuel": "moyen : intégrité du chemin de médias et continuité à vérifier.",
+    "proprietaire": "MediConsult — gestion du service visio (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-53",
+    "actif": "A-31",
+    "menace_id": "M-53",
+    "menace": "Un lien vers l’agenda nominatif est réutilisé depuis le terminal du patient sans authentification suffisante.",
+    "categorie": "LINDDUN-L",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Remplacer les liens autonomes par une authentification dans l’espace patient et ne jamaisConsiderer le canal comme preuve d’identité (technique/préventif).",
+      "Révoquer les liens et sessions après usage ou changement de canal, et tracer l’accès à l’agenda (technique/correctif)."
+    ],
+    "justification": "La réponse ne traite pas le terminal du patient comme un canal authentifié. A-31 désigne ici le prestataire de notifications ; le risque résiduel reste moyen selon les contrôles du portail.",
+    "sources": [
+      "LINDDUN",
+      "ISO/IEC 27002",
+      "OWASP ASVS",
+      "RGPD art. 32",
+      "ANSSI"
+    ],
+    "risque_residuel": "moyen : authentification et cycle de vie des liens à vérifier.",
+    "proprietaire": "MediConsult — gestion des notifications (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-54",
+    "actif": "A-32",
+    "menace_id": "M-54",
+    "menace": "Une réponse de paiement déjà obtenue est rejouée et fait transitionner une commande vers un règlement inexact.",
+    "categorie": "STRIDE-T",
+    "probabilite": "moyenne",
+    "impact": "moyen",
+    "niveau": "moyen",
+    "traitement": "réduire",
+    "mesures": [
+      "Associer chaque réponse à un identifiant de transaction unique et n’autoriser qu’un seul traitement de cet état (technique/préventif).",
+      "Rejeter les réponses répétées, signer les états financiers et conserver une trace du traitement (technique/détectif)."
+    ],
+    "justification": "La réponse neutralise le rejeu sans dépendre de la seule disponibilité du prestataire. Le risque résiduel est estimé faible après tests de répétition.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "OWASP ASVS"
+    ],
+    "risque_residuel": "faible : idempotence et transition d’état à valider.",
+    "proprietaire": "MediConsult — gestion du paiement (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-55",
+    "actif": "A-08",
+    "menace_id": "M-55",
+    "menace": "Un texte de santé est recopié avec l’identité de l’expéditeur et un identifiant de dossier dans un diagnostic ou journal de support.",
+    "categorie": "LINDDUN-L",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Neutraliser les textes de santé dans les diagnostics et limiter les identifiants conservés dans les journaux de support (technique/préventif).",
+      "Restreindre l’accès aux journaux de support selon le besoin de connaître et auditer les rapprochements (administratif/directif)."
+    ],
+    "justification": "La réponse réduit la conservation conjointe de données de santé et d’identités, sans supposer que les journaux existants sont exempts de données sensibles. Le risque résiduel reste moyen.",
+    "sources": [
+      "LINDDUN",
+      "RGPD art. 32",
+      "ISO/IEC 27002",
+      "ANSSI"
+    ],
+    "risque_residuel": "moyen : contenu des journaux de support à auditer.",
+    "proprietaire": "MediConsult — responsable de la messagerie (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-56",
+    "actif": "A-13",
+    "menace_id": "M-56",
+    "menace": "Des identifiants d’administration partagés rendent les configurations et consultations de journaux non attribuables.",
+    "categorie": "STRIDE-R",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Attribuer un compte nominatif et une MFA à chaque administrateur, sans compte partagé (administratif/directif).",
+      "Enregistrer l’identité administrative et l’action dans la supervision et alert sur les accès sans auteur identifié (technique/préventif)."
+    ],
+    "justification": "La réponse ne cherche pas seulement à surveiller les opérations, mais à rendre chaque opération attribuable. Le risque résiduel reste moyen après retrait des comptes partagés.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : attribution des opérations à vérifier.",
+    "proprietaire": "MediConsult — exploitation (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-57",
+    "actif": "A-14",
+    "menace_id": "M-57",
+    "menace": "Un certificat expiré, émis pour le mauvais nom ou installé sur le mauvais service empêche les connexions TLS.",
+    "categorie": "STRIDE-D",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Automatiser le renouvellement et alerter avant expiration en vérifiant le nom, la période et le service de chaque certificat (technique/préventif).",
+      "Tester la configurations déployée et conserver un certificat de remplacement validé avant déploiement (technique/correctif)."
+    ],
+    "justification": "La réponse traite les erreurs de renouvellement et de déploiement, tout en conservant les communications chiffrées attendues. Le risque résiduel est estimé moyen.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "OWASP ASVS"
+    ],
+    "risque_residuel": "moyen : renouvellement et bascule de certificats à valider.",
+    "proprietaire": "MediConsult — exploitation et sécurité (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-58",
+    "actif": "A-35",
+    "menace_id": "M-58",
+    "menace": "Une action privilégiée exécutée avec un compte partagé ne peut être attribuée à un administrateur.",
+    "categorie": "STRIDE-R",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "réduire",
+    "mesures": [
+      "Attribuer une identité administrative unique à chaque session et à chaque action, avec MFA (administratif/directif).",
+      "Conserver une trace de l’auteur, de l’action et du résultat, et refuser les opérations sans identité vérifiable (technique/préventif)."
+    ],
+    "justification": "La réponse traite directement l’absence d’attribution des opérations sensibles. Le risque résiduel reste moyen sans vérification de la suppression effective des comptes partagés.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : identité et traçabilité des actions à valider.",
+    "proprietaire": "MediConsult — exploitation (à confirmer)",
+    "valide_par": null
+  },
+  {
+    "id": "R-59",
+    "actif": "A-40",
+    "menace_id": "M-59",
+    "menace": "L’indisponibilité ou la compromission du prestataire de visioconférence bloque les médias de nombreuses téléconsultations.",
+    "categorie": "STRIDE-D",
+    "probabilite": "moyenne",
+    "impact": "élevé",
+    "niveau": "élevé",
+    "traitement": "transférer",
+    "mesures": [
+      "Préciser au contrat les engagements de continuité, de notification et d’assistance du prestataire (administratif/directif).",
+      "Prévoir un repli opérationnel pour les parcours de visio, cloisonner la dépendance et tester la bascule (technique/compensatoire)."
+    ],
+    "justification": "Le transfert de responsabilité ne résout pas la dépendance à un fournisseur unique. Le risque résiduel reste moyen sans objectifs de reprise ni solution de repli vérifiée.",
+    "sources": [
+      "STRIDE",
+      "ISO/IEC 27002",
+      "ANSSI",
+      "RGPD art. 32"
+    ],
+    "risque_residuel": "moyen : continuité de la visio et objectifs de reprise à valider.",
+    "proprietaire": "MediConsult — activité de soins (à confirmer)",
+    "valide_par": null
+  }
+]

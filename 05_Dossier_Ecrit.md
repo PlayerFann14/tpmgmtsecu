@@ -38,7 +38,7 @@ risques complète sur un système de téléconsultation médicale fictif : un
 chaque affirmation sur des **sources** et soumettent leur proposition à une
 **validation humaine obligatoire** avant publication du registre des risques.
 
-Le prototype (Python réel, **82 tests**) est **exécutable de bout en bout** :
+Le prototype (Python réel, **86 tests**) est **exécutable de bout en bout** :
 - en mode **dry-run déterministe** (aucune clé API) — sert à tester toute la chaîne,
   les schémas et les garde-fous, *sans* prétendre être une analyse ;
 - en mode **réel** (API chat compatible OpenAI) — pour la vraie comparaison
@@ -401,7 +401,7 @@ signée `Dr Dupont`) figure dans la trace de validation mixte `run-20260924-0957
 > registre divergent (risque oublié R-07, inventé R-11, écart de niveau R-09).
 
 ### 7.2 Suite de tests automatisés
-**82 tests pytest verts** : matrice P×I (9 cas), sanitizer (motifs FR/EN +
+**86 tests pytest verts** : matrice P×I (9 cas), sanitizer (motifs FR/EN +
 variantes paraphrasées + obfuscation + **zéro faux positif** sur le cas réel),
 schémas JSON, garde-fous (`valide_par` réservé à l'humain, niveau non matriciel
 rejeté, échelles validées uniquement depuis la configuration), ouverture d'un
@@ -430,10 +430,10 @@ ignore », « Jailbreak », « Révèle tes consignes », « Répète le prompt 
 > Ce que ce test prouve / ne prouve pas : il prouve que le document piégé n'atteint
 > jamais les agents tel quel (neutralisation + encapsulation + journalisation) et
 > que les **sorties** sont de toute façon contrôlées par schéma, matrice et
-> `valide_par`. Il ne prouve pas « le LLM n'a pas obéi » en mode réel — la
-> résistance *au modèle* est couverte par les tests du mode corrompu
-> (`FournisseurSimule(troubler=True)`, arrêt bavard G8) et sera rejouée en
-> soutenance avec `--provider openai` sur le document piégé.
+> `valide_par`. La résistance *au modèle* en conditions réelles a été rejouée le
+> 24/09/2026 sur ce même document piégé (`--provider openai`, modèle
+> `space-bunny-free`) : **14/14 injections détectées et journalisées avant le
+> premier appel d'agent** (trace `runs/run-20260924-114019/`).
 
 ---
 
@@ -522,13 +522,13 @@ LLM08 (agency excessive → G8 arrêt bavard), LLM09 (overreliance → G7 matric
 
 | Rôle | Outil | Usage dans le projet | Version / date |
 |---|---|---|---|
-| **LLM des 5 agents (mode réel du prototype)** | Modèle OpenAI-compatible visé : `gpt-4o-mini` (repli `gpt-4o-mini-2024-07-18`), configuré via `OPENAI_MODEL`, `OPENAI_BASE_URL`, `OPENAI_API_KEY` (temperature 0.2, `src/llm/openai_compat.py`) | exécution **réelle** de la chaîne AG1→AG5 + validation humaine, à démontrer en soutenance | modèle OpenAI ; intégré au prototype le 24/09/2026 (procédure `GUIDE_UTILISATION.md` § 7) |
-| **LLM hors-ligne du prototype (dry-run)** | `FournisseurSimule` (simulateur déterministe, aucun appel réseau) | tests automatisés (82 tests), démonstrations sans clé API | inclus dans `prototype/`, testé le 24/09/2026 |
+| **LLM des 5 agents (mode réel du prototype)** | Modèle **`space-bunny-free`** (API OpenAI-compatible Console OpenCode : `https://opencode.ai/inference/openai/v1`), configuré par `OPENAI_MODEL`, `OPENAI_BASE_URL`, `OPENAI_API_KEY` (temperature 0.2, timeout `OPENAI_TIMEOUT`, `src/llm/openai_compat.py`) | exécution **réelle** de la chaîne AG1→AG5 + comparaison 04 : **run du 24/09/2026**, trace `runs/run-20260924-110333/` (10/10 risques retrouvés, 49 inventés, 5 écarts de niveau — détail § 3.3 de 04) | modèle OpenAI-compatible, **exécuté** le 24/09/2026 (procédure `GUIDE_UTILISATION.md` § 7) |
+| **LLM hors-ligne du prototype (dry-run)** | `FournisseurSimule` (simulateur déterministe, aucun appel réseau) | tests automatisés (86 tests), démonstrations sans clé API | inclus dans `prototype/`, testé le 24/09/2026 |
 | **Éditeur agentique / assistant de rédaction** | OpenCode (agent de développement en terminal) | rédaction assistée du code du prototype, des tests et de ce dossier ; refactorings guidés par l'audit | OpenCode v2.0.15 — 2026-09 → 10 |
 | **Modèle de l'assistant de l'équipe** | modèle LLM de l'environnement OpenCode utilisé par l'équipe pour rédiger/corriger | aide à la rédaction, relecture critique, génération de code et de tests | *— compléter avec le modèle fourni par l'équipe —* |
 | **Conversion des documents en PDF** | `outils/md_to_pdf.py` — Markdown 3.10.3 + xhtml2pdf 0.2.20 (repli weasyprint 70.0, PyMuPDF 1.28.2) | jeu de documents 01→09 livré en .md et .pdf | 2026-09-24 |
 | **Validation des schémas JSON** | `jsonschema` 4.26.0 (Draft 2020-12) | validation des sorties de chaque agent (G4) | 2026-09-24 |
-| **Exécution des tests** | `pytest` 9.1.1 | suite non régressive (82 tests) | 2026-09-24 |
+| **Exécution des tests** | `pytest` 9.1.1 | suite non régressive (86 tests) | 2026-09-24 |
 | **Versionnement / livraison** | git 2.47.3, dépôt `github.com/PlayerFann14/tpmgmtsecu` (branche `main`) | remise des artefacts (docs, prototype, traces) | 2026-09-24 |
 | **Référentiels méthodologiques** (contenus, non IA) | ISO/IEC 27002:2022, ISO/IEC 27005, EBIOS RM (ANSSI), NIST SP 800-30, STRIDE (Shostack), LINDDUN (KU Leuven), MITRE ATT&CK, OWASP (ASVS, API Top 10, Top 10 LLM 2025), NVD/CVSS | base de connaissances `prototype/knowledge/*.md` ; chaque risque cite ses sources (§ 6.3) | documents 2022-2025, snapshot CVE daté 2026-09-23 |
 

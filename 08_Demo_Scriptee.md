@@ -12,7 +12,7 @@
 ```bash
 cd prototype
 source .venv/bin/activate          # ou : export PATH=$PWD/.venv/bin:$PATH
-PYTHONPATH=src python -m pytest tests/ -q   # → 82 passed, 8 fichiers (~1 s)
+PYTHONPATH=src python -m pytest tests/ -q   # → 86 passed, 8 fichiers (~1 s)
 ```
 
 - Afficher à l'écran deux terminaux : **A** = commandes, **B** = `runs/` (preuves).
@@ -65,6 +65,19 @@ Chaîne : AG1 → AG2 → AG3 → AG4 → AG5 (proposition) → validation humai
 
 **Astuce timing :** la commande est quasi instantanée (< 2 s) — c'est un argument
 (« pas dépendant du réseau »).
+
+**Option finale — mode réel `--provider openai` (si la clé API du groupe est prête) :**
+
+```bash
+export OPENAI_BASE_URL=... OPENAI_API_KEY=... OPENAI_MODEL=... OPENAI_TIMEOUT=600
+PYTHONPATH=src python run.py run --case cases/casB_mediconsult.md --provider openai --comparer
+```
+
+**À dire :** « le mode réel a été exécuté en préparation (24/09/2026) : modèle
+`space-bunny-free` (API Console OpenCode), trace `runs/run-20260924-110333/` —
+**10/10 risques retrouvés · 49 inventés · 5 écarts de niveau** : la comparaison
+n'est pas tautologique avec un vrai modèle. Compter ~10-20 min sur un modèle
+gratuit ; en soutenance, on peut aussi montrer la trace toute prête. »
 
 ---
 
@@ -222,7 +235,7 @@ Octets réellement envoyés, mesurés dans le journal : AG1 = 5 048 → AG5 = 11
 ## Checklist démo (rappel rapide)
 
 - [ ] `cd prototype` + venv activé
-- [ ] `pytest -q` → 82 passed, 8 fichiers (à faire le matin)
+- [ ] `pytest -q` → 86 passed, 8 fichiers (à faire le matin)
 - [ ] `cases/casB_mediconsult.md` + `cases/casB_injecte.md` présents
 - [ ] Terminal B ouvert sur `runs/` avec un `ls -t` prêt
 - [ ] Chrono : 8 min visées, couper § 5 si débordement

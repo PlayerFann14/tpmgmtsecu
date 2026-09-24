@@ -239,7 +239,7 @@ AI Act · RGPD · ISO/IEC 27002 · ISO 27001 (PDCA).
 
 ## 8. État d'avancement (2026-09-24 — après audit et corrections)
 
-- **Tests** : **82 tests pytest verts** (8 fichiers dans `prototype/tests/`), dont
+- **Tests** : **86 tests pytest verts** (8 fichiers dans `prototype/tests/`), dont
   `test_comparaison.py` (avant audit : 52 tests, 7 fichiers).
 - **Injection de prompt** (`cases/casB_injecte.md`) : **14 consignes piégées →
   14/14 détections mesurées** (une par occurrence), **9 familles de motifs**

@@ -115,7 +115,7 @@ l'agent (`_OUTILS_PAR_AGENT`, cf. § 5) dans une `SandboxOutils` (liste blanche,
 |---|---|
 | `interface.py` | contrat `FournisseurLLM` (Protocol) + `extraire_json` |
 | `dummy.py` | simulateur déterministe : **reproduit la référence pour tester la chaîne** — `nom_produit = "dummy-deterministic (test de chaîne — n'est PAS une analyse)"` ; paramètre `fidele=True/False` (False = registre valide mais divergent, cf. § 11) |
-| `openai_compat.py` | fournisseur réel : `POST {base_url}/chat/completions` (urllib standard, sans dépendance), `temperature=0.2` par défaut |
+| `openai_compat.py` | fournisseur réel : `POST {base_url}/chat/completions`, `temperature=0.2` par défaut, `timeout` via `OPENAI_TIMEOUT`. Transport : curl système (TLS vérifié, clé hors argv via config `0600` éphémère), repli `urllib` |
 
 ### 3.4 `src/agents/` — l'orchestration et les consignes
 
