@@ -10,7 +10,7 @@
   {
     "id": "CVE-2023-4863",
     "produit": "libwebp (décodage WebP, navigateurs)",
-    "type": "débordement de pile → RCE",
+    "type": "débordement de tas (heap buffer overflow) → RCE",
     "score_cvss": 8.8,
     "niveau": "Élevé",
     "reference": "NIST NVD — CVSS v3.1"
